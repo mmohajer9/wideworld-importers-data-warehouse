@@ -6,8 +6,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.DimStockGroup
 (
-    StockGroupID INT NOT NULL PRIMARY KEY,
     -- primary key column
+    StockGroupID INT NOT NULL PRIMARY KEY,
     StockGroupName [NVARCHAR](100) NOT NULL
     -- specify more columns here
 );
@@ -22,8 +22,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.DimPackageTypes
 (
-    PackageTypeID INT NOT NULL PRIMARY KEY,
     -- primary key column
+    PackageTypeID INT NOT NULL PRIMARY KEY,
     PackageTypeName [NVARCHAR](100) NOT NULL
     -- specify more columns here
 );
@@ -39,8 +39,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.DimTransactionTypes
 (
-    TransactionTypeID INT NOT NULL PRIMARY KEY,
     -- primary key column
+    TransactionTypeID INT NOT NULL PRIMARY KEY,
     TransactionTypeName [NVARCHAR](100) NOT NULL
     -- specify more columns here
 );
@@ -55,8 +55,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.DimColors
 (
-    ColorID INT NOT NULL PRIMARY KEY,
     -- primary key column
+    ColorID INT NOT NULL PRIMARY KEY,
     ColorName [NVARCHAR](100) NOT NULL
     -- specify more columns here
 );
@@ -70,8 +70,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.DimStockItems
 (
-    StockItemID INT NOT NULL,
     -- primary key column
+    StockItemID INT NOT NULL,
     StockItemName [NVARCHAR](100) NOT NULL,
 
     --^ columns from stockitems
@@ -81,6 +81,14 @@ CREATE TABLE dbo.DimStockItems
     IsChillerStock BIT NOT NULL,
     Barcode [NVARCHAR](100),
 
+    ColorID INT NOT NULL,
+    ColorName [NVARCHAR](100) NOT NULL,
+
+    UnitPackageTypeID INT NOT NULL,
+    UnitPackageTypeName [NVARCHAR](100) NOT NULL,
+
+    OuterPackageTypeID INT NOT NULL,
+    OuterPackageTypeName [NVARCHAR](100) NOT NULL,
     --* some numeric columns
 
     TaxRate [NUMERIC](20 , 3) NOT NULL,
@@ -90,19 +98,18 @@ CREATE TABLE dbo.DimStockItems
 
     --^ columns from stockitemholdings
 
-
-    --& SCD Type 3
-    OriginalBinLocation [NVARCHAR](40) NOT NULL,
-    CurrentBinLocation [NVARCHAR](40) NOT NULL,
-    EffectiveDate [DATE] NOT NULL,
-    --& SCD Type 3
-
     LastCostPrice [NUMERIC](20 , 3) NOT NULL,
     QuantityOnHand INT NOT NULL,
     LastStocktakeQuantity INT NOT NULL,
 
     TargetStockLevel INT NOT NULL,
     ReorderLevel INT NOT NULL,
+
+    --& SCD Type 3
+    OriginalBinLocation [NVARCHAR](40) NOT NULL,
+    CurrentBinLocation [NVARCHAR](40) NOT NULL,
+    EffectiveDate [DATE] NOT NULL,
+    --& SCD Type 3
 
 );
 GO
