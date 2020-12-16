@@ -172,10 +172,10 @@ AS
 BEGIN
     DECLARE @last_added DATE = (
         SELECT isnull(max([TransactionDate]),'2012-12-31')
-        FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
+    FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
     )
     INSERT INTO StagingCustomerTransactions
-    (
+        (
         [StockItemTransactionID],
         [StockItemID],
         [TransactionTypeID],
@@ -185,7 +185,7 @@ BEGIN
         [PurchaseOrderID],
         [TransactionOccurredWhen],
         [Quantity]
-    )
+        )
     SELECT
         [StockItemTransactionID],
         [StockItemID],
