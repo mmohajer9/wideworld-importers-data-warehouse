@@ -75,7 +75,8 @@ CREATE TABLE dbo.DimStockItems
     StockItemName [NVARCHAR](200) NOT NULL,
 
     --^ columns from stockitems
-
+    [SupplierID] [int] NOT NULL,
+    
     Brand [NVARCHAR](100),
     Size [NVARCHAR](50),
     IsChillerStock BIT NOT NULL,
