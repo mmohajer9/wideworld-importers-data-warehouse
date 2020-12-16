@@ -1,3 +1,3 @@
 # README
 
-## This project will be completed soon enough!
+## This project will be completed soon enough
