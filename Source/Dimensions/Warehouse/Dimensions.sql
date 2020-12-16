@@ -71,8 +71,8 @@ GO
 CREATE TABLE dbo.DimStockItems
 (
     -- primary key column
-    StockItemID INT NOT NULL,
-    StockItemName [NVARCHAR](100) NOT NULL,
+    StockItemID INT NOT NULL PRIMARY KEY,
+    StockItemName [NVARCHAR](200) NOT NULL,
 
     --^ columns from stockitems
 
@@ -81,8 +81,8 @@ CREATE TABLE dbo.DimStockItems
     IsChillerStock BIT NOT NULL,
     Barcode [NVARCHAR](100),
 
-    ColorID INT NOT NULL,
-    ColorName [NVARCHAR](100) NOT NULL,
+    ColorID INT,
+    ColorName [NVARCHAR](100) ,
 
     UnitPackageTypeID INT NOT NULL,
     UnitPackageTypeName [NVARCHAR](100) NOT NULL,
