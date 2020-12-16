@@ -1,7 +1,8 @@
 
 
 
-create table DimOrder(
+create table DimOrder
+(
 	OrderKey int IDENTITY(1,1) primary key,
 	OrderID int,
 	CustomerID nvarchar(256),
@@ -18,8 +19,10 @@ create table DimOrder(
 
 
 
-create table DimCustomer(
-	CustomerKey int IDENTITY(1,1) primary key, -- surggate key
+create table DimCustomer
+(
+	CustomerKey int IDENTITY(1,1) primary key,
+	-- surggate key
 	CustomerID int,
 	CustomerName nvarchar(200),
 	CategoryID int,
@@ -36,7 +39,8 @@ create table DimCustomer(
 	DeliveryPostalCode nvarchar(20),
 	PrimaryContactPersonID int,
 	PrimaryContactName nvarchar(100),
-	PhoneNumber nvarchar(30), -- can change with scd type 2
+	PhoneNumber nvarchar(30),
+	-- can change with scd type 2
 	StartDate date,
 	EndDate date,
 	CurrentFlag bit
@@ -44,7 +48,8 @@ create table DimCustomer(
 GO
 
 
-create table DimInvoice(
+create table DimInvoice
+(
 	InvoiceKey int IDENTITY(1,1) primary key,
 	InvoiceID int ,
 	CustomerID int,
@@ -60,20 +65,22 @@ create table DimInvoice(
 	DeliveryMethodID int,
 	DeliveryMethodName nvarchar(100),
 	DeliveryAddress nvarchar(max),
-	DeliveryDate datetime null, --scd type one
-	ReceivedBy nvarchar(200) null --scd type one
+	DeliveryDate datetime null,
+	--scd type one
+	ReceivedBy nvarchar(200) null
+	--scd type one
 )
 Go
 
 
-CREATE TABLE DimPayment (
-	PaymentID int ,
+CREATE TABLE DimPayment
+(
+	PaymentKey int primary key ,
 	PaymentMethodName nvarchar(100)
 )
 
-
-
-create table DimPeople(
+create table DimPeople
+(
 	PeopleKey int primary key,
 	FullName nvarchar(100),
 	PreferredName nvarchar(100),
