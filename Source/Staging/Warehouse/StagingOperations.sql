@@ -36,6 +36,20 @@ BEGIN
         [TypicalWeightPerUnit]
     FROM [WideWorldImporters].[Warehouse].[StockItems]
 
+    -------------------------------------------------------
+    
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_INSERT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingStockItems',
+    @action = 'INSERT',
+    @TargetTable = 'StagingStockItems',
+    @Datetime = @CURRENT_INSERT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
+
 END
 --------------------------------------------------------------------------------------------------------------
 GO
@@ -86,6 +100,22 @@ BEGIN
 
     FROM [WideWorldImporters].[Warehouse].[StockGroups]
 
+
+    -------------------------------------------------------
+    
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_INSERT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingStockGroups',
+    @action = 'INSERT',
+    @TargetTable = 'StagingStockGroups',
+    @Datetime = @CURRENT_INSERT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
+
+
 END
 --------------------------------------------------------------------------------------------------------------
 GO
@@ -106,6 +136,20 @@ BEGIN
         [StockGroupID]
 
     FROM [WideWorldImporters].[Warehouse].[StockItemStockGroups]
+
+    -------------------------------------------------------
+    
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_INSERT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingStockItemStockGroups',
+    @action = 'INSERT',
+    @TargetTable = 'StagingStockItemStockGroups',
+    @Datetime = @CURRENT_INSERT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
 
 END
 --------------------------------------------------------------------------------------------------------------
@@ -146,6 +190,20 @@ BEGIN
 
     FROM [WideWorldImporters].[Warehouse].[Colors]
 
+    -------------------------------------------------------
+
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_INSERT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingColors',
+    @action = 'INSERT',
+    @TargetTable = 'StagingColors',
+    @Datetime = @CURRENT_INSERT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
+
 END
 --------------------------------------------------------------------------------------------------------------
 GO
@@ -153,7 +211,11 @@ GO
 CREATE OR ALTER PROCEDURE FillStagingTransactionTypes
 AS
 BEGIN
+
+    DECLARE @CURRENT_TRUNCATE_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     TRUNCATE TABLE StagingTransactionTypes
+
     INSERT INTO StagingTransactionTypes
         (
         [TransactionTypeID],
@@ -164,6 +226,18 @@ BEGIN
         [TransactionTypeName]
 
     FROM [WideWorldImporters].[Application].[TransactionTypes]
+
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_INSERT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingTransactionTypes',
+    @action = 'INSERT',
+    @TargetTable = 'StagingTransactionTypes',
+    @Datetime = @CURRENT_INSERT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
 
 END
 --------------------------------------------------------------------------------------------------------------
@@ -180,6 +254,24 @@ CREATE OR ALTER PROCEDURE FillStagingStockItemTransactions
 
 AS
 BEGIN
+
+    --? temp table for gathering needed rows
+    IF OBJECT_ID('temp_staging_stock_items_till_today', 'U') IS NOT NULL
+        DROP TABLE temp_staging_stock_items_till_today
+
+    CREATE TABLE temp_staging_stock_items_till_today
+    (
+        [StockItemTransactionID] [int] NOT NULL,
+        [StockItemID] [int] NOT NULL,
+        [TransactionTypeID] [int] NOT NULL,
+        [CustomerID] [int] NULL,
+        [InvoiceID] [int] NULL,
+        [SupplierID] [int] NULL,
+        [PurchaseOrderID] [int] NULL,
+        [TransactionOccurredWhen] [datetime2](7) NOT NULL,
+        [Quantity] [decimal](18, 3) NOT NULL,
+    );
+
 
     --^ date of the last transaction in the "source table"
     declare @today DATETIME2 = (
@@ -199,7 +291,7 @@ BEGIN
         SET @last_added = DATEADD(dd, 1, @last_added)
 
         --? then we should insert new data day by day incrementally --> in opposite of bulk insert --> high load + efficient use of RAM
-        INSERT INTO StagingStockItemTransactions
+        INSERT INTO temp_staging_stock_items_till_today
             (
             [StockItemTransactionID],
             [StockItemID],
@@ -225,7 +317,41 @@ BEGIN
         WHERE (TransactionOccurredWhen >= @last_added AND TransactionOccurredWhen < DATEADD(dd, 1, @last_added))
     END
 
+    INSERT INTO StagingStockItemTransactions
+        (
+        [StockItemTransactionID],
+        [StockItemID],
+        [TransactionTypeID],
+        [CustomerID],
+        [InvoiceID],
+        [SupplierID],
+        [PurchaseOrderID],
+        [TransactionOccurredWhen],
+        [Quantity]
+        )
+    SELECT
+        [StockItemTransactionID],
+        [StockItemID],
+        [TransactionTypeID],
+        [CustomerID],
+        [InvoiceID],
+        [SupplierID],
+        [PurchaseOrderID],
+        [TransactionOccurredWhen],
+        [Quantity]
+    FROM temp_staging_stock_items_till_today
 
+    DECLARE @AFFECTED_ROWS INT;
+    SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
+    exec [AddStagingLog] 
+    @procedure_name = 'FillStagingStockItemTransactions',
+    @action = 'INSERT',
+    @TargetTable = 'StagingStockItemTransactions',
+    @Datetime = @CURRENT_DATETIME,
+    @AffectedRowsNumber = @AFFECTED_ROWS
 
 END
 --------------------------------------------------------------------------------------------------------------

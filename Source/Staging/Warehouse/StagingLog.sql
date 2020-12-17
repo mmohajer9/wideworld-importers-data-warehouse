@@ -1,0 +1,46 @@
+IF OBJECT_ID('dbo.StagingLog', 'U') IS NOT NULL
+DROP TABLE dbo.StagingLog
+GO
+
+CREATE TABLE StagingLog
+(
+    [StagingLogID] INT IDENTITY(1 , 1) NOT NULL PRIMARY KEY,
+    [ProcedureName] NVARCHAR(500) NOT NULL,
+    [Action] NVARCHAR(500) NOT NULL,
+    [TargetTable] NVARCHAR(500) NOT NULL,
+    [Datetime] DATETIME2(7) NOT NULL,
+    [AffectedRowsNumber] INT NOT NULL
+);
+GO
+
+
+CREATE OR ALTER PROCEDURE AddStagingLog
+
+    @procedure_name NVARCHAR(500) = "UNDEFINED",
+    @action NVARCHAR(500) = "UNDEFINED",
+    @TargetTable NVARCHAR(500) = "UNDEFINED",
+    @Datetime DATETIME2,
+    @AffectedRowsNumber INT = 0
+AS
+BEGIN
+
+    INSERT INTO StagingLog
+        (
+        [ProcedureName],
+        [Action],
+        [TargetTable],
+        [Datetime],
+        [AffectedRowsNumber]
+        )
+    VALUES
+        (
+            @procedure_name,
+            @action,
+            @TargetTable,
+            @Datetime,
+            @AffectedRowsNumber        
+    );
+
+END
+--------------------------------------------------------------------------------------------------------------
+GO
