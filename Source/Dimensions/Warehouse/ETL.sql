@@ -9,8 +9,11 @@ BEGIN
     FROM DimStockGroup
     )
 
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     IF @dim_row_count <> 0
     BEGIN
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
         DELETE FROM DimStockGroup
         WHERE StockGroupID in (
@@ -19,20 +22,50 @@ BEGIN
         from StagingStockGroups        
         );
 
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimStockGroup',
+        @action = 'DELETE',
+        @DimensionName = 'DimStockGroup',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimStockGroup
         select
             StockGroupID,
             StockGroupName
         from StagingStockGroups
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimStockGroup',
+        @action = 'INSERT',
+        @DimensionName = 'DimStockGroup',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
     ---
     ELSE
     BEGIN
+
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimStockGroup
         select
             StockGroupID,
             StockGroupName
         from StagingStockGroups
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimStockGroup',
+        @action = 'INSERT',
+        @DimensionName = 'DimStockGroup',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
 
 END
@@ -43,6 +76,9 @@ CREATE OR ALTER PROCEDURE SCD1_DimPackageTypes
 -- @param2 int = 0
 AS
 BEGIN
+
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     DECLARE @dim_row_count INT;
     SET @dim_row_count = (
         SELECT COUNT(*)
@@ -52,6 +88,8 @@ BEGIN
     IF @dim_row_count <> 0
     BEGIN
 
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         DELETE FROM DimPackageTypes
         WHERE PackageTypeID in (
         select
@@ -59,20 +97,50 @@ BEGIN
         from StagingPackageTypes        
         );
 
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimPackageTypes',
+        @action = 'DELETE',
+        @DimensionName = 'DimPackageTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimPackageTypes
         select
             PackageTypeID,
             PackageTypeName
         from StagingPackageTypes
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimPackageTypes',
+        @action = 'INSERT',
+        @DimensionName = 'DimPackageTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
     ---
     ELSE
     BEGIN
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimPackageTypes
         select
             PackageTypeID,
             PackageTypeName
         from StagingPackageTypes
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimPackageTypes',
+        @action = 'INSERT',
+        @DimensionName = 'DimPackageTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
 
 END
@@ -84,6 +152,9 @@ CREATE OR ALTER PROCEDURE SCD1_DimTransactionTypes
 -- @param2 int = 0
 AS
 BEGIN
+
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     DECLARE @dim_row_count INT;
     SET @dim_row_count = (
         SELECT COUNT(*)
@@ -92,6 +163,7 @@ BEGIN
 
     IF @dim_row_count <> 0
     BEGIN
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
         DELETE FROM DimTransactionTypes
         WHERE TransactionTypeID in (
@@ -100,20 +172,49 @@ BEGIN
         from StagingTransactionTypes        
         );
 
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimTransactionTypes',
+        @action = 'DELETE',
+        @DimensionName = 'DimTransactionTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimTransactionTypes
         select
             TransactionTypeID,
             TransactionTypeName
         from StagingTransactionTypes
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimTransactionTypes',
+        @action = 'INSERT',
+        @DimensionName = 'DimTransactionTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
     ---
     ELSE
     BEGIN
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimTransactionTypes
         select
             TransactionTypeID,
             TransactionTypeName
         from StagingTransactionTypes
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimTransactionTypes',
+        @action = 'INSERT',
+        @DimensionName = 'DimTransactionTypes',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
 
 END
@@ -125,6 +226,9 @@ CREATE OR ALTER PROCEDURE SCD1_DimColors
 -- @param2 int = 0
 AS
 BEGIN
+
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     DECLARE @dim_row_count INT;
     SET @dim_row_count = (
         SELECT COUNT(*)
@@ -134,6 +238,8 @@ BEGIN
     IF @dim_row_count <> 0
     BEGIN
 
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         DELETE FROM DimColors
         WHERE ColorID in (
         select
@@ -141,20 +247,47 @@ BEGIN
         from StagingColors        
         );
 
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimColors',
+        @action = 'DELETE',
+        @DimensionName = 'DimColors',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimColors
         select
             ColorID,
             ColorName
         from StagingColors
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimColors',
+        @action = 'INSERT',
+        @DimensionName = 'DimColors',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
     ---
     ELSE
     BEGIN
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimColors
         select
             ColorID,
             ColorName
         from StagingColors
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD1_DimColors',
+        @action = 'INSERT',
+        @DimensionName = 'DimColors',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
     END
 
 END
@@ -169,6 +302,9 @@ CREATE OR ALTER PROCEDURE SCD3_DimStockItems
 -- @param2 int = 0
 AS
 BEGIN
+
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
+
     DECLARE @dim_row_count INT;
     SET @dim_row_count = (
         SELECT COUNT(*)
@@ -213,6 +349,8 @@ BEGIN
 
     IF @dim_row_count = 0
     BEGIN
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimStockItems
         select
 
@@ -247,10 +385,20 @@ BEGIN
 
         from #temp_origin
 
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD3_DimStockItems',
+        @action = 'INSERT',
+        @DimensionName = 'DimStockItems',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
     END
     ---
     ELSE
     BEGIN
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         INSERT INTO DimStockItems
         select
 
@@ -289,6 +437,15 @@ BEGIN
         from DimStockItems
         )
 
+
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD3_DimStockItems',
+        @action = 'INSERT',
+        @DimensionName = 'DimStockItems',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
         -- track the modified records
 
         select
@@ -326,6 +483,8 @@ BEGIN
         where a.BinLocation <> BinLocation
         )
 
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
         UPDATE DimStockItems
         SET EffectiveDate = CONVERT(DATE, GETDATE()),
             OriginalBinLocation = CurrentBinLocation,
@@ -336,7 +495,12 @@ BEGIN
             select StockItemID
         from #temp_modified);
 
-
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD3_DimStockItems',
+        @action = 'UPDATE',
+        @DimensionName = 'DimStockItems',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
 
         DROP TABLE #temp_modified;
         DROP TABLE #temp_origin;
@@ -362,4 +526,3 @@ BEGIN
 END
 --------------------------------------------------------------------------------------------------------------
 GO
-
