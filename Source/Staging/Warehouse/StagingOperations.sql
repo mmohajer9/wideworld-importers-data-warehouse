@@ -174,7 +174,7 @@ BEGIN
         SELECT isnull(max([TransactionDate]),'2012-12-31')
     FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
     )
-    INSERT INTO StagingCustomerTransactions
+    INSERT INTO StagingStockItemTransactions
         (
         [StockItemTransactionID],
         [StockItemID],
