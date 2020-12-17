@@ -96,12 +96,14 @@ BEGIN
     TRUNCATE TABLE StagingStockItemStockGroups
     INSERT INTO StagingStockItemStockGroups
         (
-        [StockGroupID],
-        [StockGroupName]
+        [StockItemStockGroupID],
+        [StockItemID],
+        [StockGroupID]
         )
     SELECT
-        [StockGroupID],
-        [StockGroupName]
+        [StockItemStockGroupID],
+        [StockItemID],
+        [StockGroupID]
 
     FROM [WideWorldImporters].[Warehouse].[StockItemStockGroups]
 
@@ -161,18 +163,25 @@ BEGIN
         [TransactionTypeID],
         [TransactionTypeName]
 
-    FROM [WideWorldImporters].[Warehouse].[TransactionTypes]
+    FROM [WideWorldImporters].[Application].[TransactionTypes]
 
 END
 --------------------------------------------------------------------------------------------------------------
 GO
 
+
+
+
+
 CREATE OR ALTER PROCEDURE FillStagingStockItemTransactions
+
+    @from_date DATETIME2 = '2012-12-31'
+
 AS
 BEGIN
-    DECLARE @last_added DATE = (
-        SELECT isnull(max([TransactionDate]),'2012-12-31')
-    FROM [WideWorldImporters].[Warehouse].[StagingStockItemTransactions]
+    DECLARE @last_added DATETIME2 = (
+        SELECT isnull(max([TransactionOccurredWhen]),@from_date)
+        FROM [WWI-DW].[dbo].[StagingStockItemTransactions]
     )
     INSERT INTO StagingStockItemTransactions
         (
@@ -198,6 +207,30 @@ BEGIN
         [Quantity]
     FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
     WHERE TransactionOccurredWhen > @last_added
+
 END
 --------------------------------------------------------------------------------------------------------------
+GO
+
+
+CREATE OR ALTER PROCEDURE FILL_STAGING_AREA
+AS
+BEGIN
+
+    EXECUTE FillStagingStockItems;
+    EXECUTE FillStagingStockItemHoldings;
+    EXECUTE FillStagingStockGroups;
+    EXECUTE FillStagingStockItemStockGroups;
+    EXECUTE FillStagingPackageTypes;
+    EXECUTE FillStagingColors;
+    EXECUTE FillStagingTransactionTypes;
+    EXECUTE FillStagingStockItemTransactions;
+
+END
+--------------------------------------------------------------------------------------------------------------
+GO
+
+
+exec FILL_STAGING_AREA;
+
 GO
