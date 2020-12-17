@@ -3,6 +3,7 @@ use WideWorldImporters
 
 
 --*****************************start Staging People******************************
+IF OBJECT_ID('dbo.StagingPeople', 'U') IS NOT NULL
 drop table StagingPeople
 CREATE TABLE StagingPeople(
 	PersonID int NOT NULL Primary key,
@@ -35,6 +36,8 @@ BEGIN
 
 END
 GO
+exec FillStagingPeople
+
 --***************************** end Staging People*******************************
 
 
@@ -42,6 +45,7 @@ GO
 
 
 --***************************** start Staging PaymentMethod*******************************
+IF OBJECT_ID('dbo.StagingPaymentMethods', 'U') IS NOT NULL
 drop table StagingPaymentMethods
 CREATE TABLE StagingPaymentMethods(
 	[PaymentMethodID] [int] NOT NULL,
@@ -64,6 +68,7 @@ select * from StagingPaymentMethods
 
 
 --***************************** start Staging Delivery method*******************************
+IF OBJECT_ID('dbo.StagingDeliveryMethods', 'U') IS NOT NULL
 drop table StagingDeliveryMethods
 CREATE TABLE StagingDeliveryMethods(
 	[DeliveryMethodID] [int] NOT NULL,
@@ -86,6 +91,7 @@ select * from StagingDeliveryMethods
 
 
 --***************************** start Staging Cities*******************************
+IF OBJECT_ID('dbo.StagingCities', 'U') IS NOT NULL
 drop table StagingCities
 CREATE TABLE StagingCities(
 	CityID [int] NOT NULL primary key,
@@ -110,6 +116,7 @@ select * from StagingCities
 
 
 --***************************** start Staging Province*******************************
+IF OBJECT_ID('dbo.StagingStateProvinces', 'U') IS NOT NULL
 drop table StagingStateProvinces
 CREATE TABLE StagingStateProvinces(
 	[StateProvinceID] [int] NOT NULL primary key,
@@ -124,7 +131,7 @@ begin
 	truncate table StagingStateProvinces
 	insert into StagingStateProvinces([StateProvinceID],[StateProvinceCode],[StateProvinceName],[CountryID],[SalesTerritory],
 		[LatestRecordedPopulation])
-	select [StateProvinceID],[StateProvinceCode],[StateProvinceName],[CountryID],[SalesTerritory],[Border],
+	select [StateProvinceID],[StateProvinceCode],[StateProvinceName],[CountryID],[SalesTerritory],
 		[LatestRecordedPopulation] from Application.StateProvinces
 end
 GO
@@ -138,6 +145,7 @@ select * from StagingStateProvinces
 
 
 --***************************** start Staging BuyingGroups*******************************
+IF OBJECT_ID('dbo.StagingBuyingGroups', 'U') IS NOT NULL
 drop table StagingBuyingGroups
 CREATE TABLE StagingBuyingGroups(
 	[BuyingGroupID] [int] NOT NULL,
@@ -163,6 +171,7 @@ select * from StagingBuyingGroups
 
 
 --***************************** start Staging CustomerCategories*******************************
+IF OBJECT_ID('dbo.StagingCustomerCategories', 'U') IS NOT NULL
 drop table StagingCustomerCategories
 CREATE TABLE StagingCustomerCategories(
 	[CustomerCategoryID] [int] NOT NULL,
@@ -187,6 +196,7 @@ select * from StagingCustomerCategories
 
 
 --***************************** start Staging Customers*******************************
+IF OBJECT_ID('dbo.StagingCustomers', 'U') IS NOT NULL
 drop table StagingCustomers
 CREATE TABLE StagingCustomers(
 	[CustomerID] [int] NOT NULL,
@@ -242,6 +252,7 @@ select * from StagingCustomers
 
 
 --***************************** start Staging InvoiceLines*******************************
+IF OBJECT_ID('dbo.StagingInvoiceLines', 'U') IS NOT NULL
 drop table StagingInvoiceLines
 CREATE TABLE StagingInvoiceLines(
 	[InvoiceLineID] [int] NOT NULL,
@@ -279,6 +290,7 @@ select * from StagingInvoiceLines
 
 
 --***************************** start Staging Invoices*******************************
+IF OBJECT_ID('dbo.StagingInvoices', 'U') IS NOT NULL
 drop table StagingInvoices
 CREATE TABLE StagingInvoices(
 	[InvoiceID] [int] NOT NULL,
@@ -309,15 +321,20 @@ go
 create or alter procedure FillStagingInvoices as 
 begin
 	
-	declare @last_added date = (select isnull(max(InvoiceDate),'2012-12-31') from StagingInvoices)
+	truncate table StagingInvoices
 
-	insert into StagingInvoices([InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
-	[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
-	[DeliveryInstructions],[InternalComments],[TotalDryItems],[TotalChillerItems],[DeliveryRun],[RunPosition],[ReturnedDeliveryData])
-	select [InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
-	[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
-	[DeliveryInstructions],[InternalComments],[TotalDryItems],[TotalChillerItems],[DeliveryRun],[RunPosition],[ReturnedDeliveryData]
-	from Sales.Invoices where InvoiceDate > @last_added
+	declare @first_date date = (select isnull(min(InvoiceDate),'2012-12-31') from Sales.Invoices)
+	declare @last_date date = (select isnull(max(InvoiceDate),'2012-12-31') from Sales.Invoices)
+	while(@first_date <= @last_date) begin
+		insert into StagingInvoices([InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
+		[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
+		[DeliveryInstructions],[InternalComments],[TotalDryItems],[TotalChillerItems],[DeliveryRun],[RunPosition],[ReturnedDeliveryData])
+		select [InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
+		[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
+		[DeliveryInstructions],[InternalComments],[TotalDryItems],[TotalChillerItems],[DeliveryRun],[RunPosition],[ReturnedDeliveryData]
+		from Sales.Invoices where InvoiceDate = @first_date
+		set @first_date = DATEADD(dd,1,@first_date)
+	end
 
 end
 
@@ -333,6 +350,7 @@ select * from StagingInvoices
 
 
 --***************************** start Staging OrderLines*******************************
+IF OBJECT_ID('dbo.StagingOrderLines', 'U') IS NOT NULL
 drop table StagingOrderLines
 CREATE TABLE StagingOrderLines(
 	[OrderLineID] [int] NOT NULL,
@@ -370,6 +388,7 @@ select * from StagingOrderLines
 
 
 --***************************** start Staging Orders************************************
+IF OBJECT_ID('dbo.StagingOrders', 'U') IS NOT NULL
 drop table StagingOrders
 CREATE TABLE StagingOrders(
 	[OrderID] [int] NOT NULL,
@@ -382,27 +401,25 @@ CREATE TABLE StagingOrders(
 	[ExpectedDeliveryDate] [date] NOT NULL,
 	[CustomerPurchaseOrderNumber] [nvarchar](20) NULL,
 	[IsUndersupplyBackordered] [bit] NOT NULL,
-	[Comments] [nvarchar](max) NULL,
-	[DeliveryInstructions] [nvarchar](max) NULL,
-	[InternalComments] [nvarchar](max) NULL,
-	[PickingCompletedWhen] [datetime2](7) NULL)
+	[DeliveryInstructions] [nvarchar](max) NULL)
 go
 create or alter procedure FillStagingOrders as 
 begin
-	declare @last_added date = (select isnull(max([OrderDate]),'2012-12-31') from StagingOrders)
+	create table tmp(id int)
+		insert into tmp(id) select StagingOrders.OrderID from StagingOrders
+	
 	insert into StagingOrders([OrderID],[CustomerID],[SalespersonPersonID],[PickedByPersonID],[ContactPersonID],[BackorderOrderID],
-	[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[Comments],[DeliveryInstructions],
-	[InternalComments],[PickingCompletedWhen])
+			[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[DeliveryInstructions])
 	select [OrderID],[CustomerID],[SalespersonPersonID],[PickedByPersonID],[ContactPersonID],[BackorderOrderID],
-	[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[Comments],[DeliveryInstructions],
-	[InternalComments],[PickingCompletedWhen]
-	from Sales.Orders where OrderDate > @last_added
+			[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[DeliveryInstructions]
+		from Sales.Orders where OrderID not in (select id from tmp)
+	drop table tmp
 end
 
 select * from StagingOrders
 exec FillStagingOrders
 select * from StagingOrders
---***************************** end Staging OrderLines***************************************
+--***************************** end Staging Orders***************************************
 
 
 
@@ -411,6 +428,7 @@ select * from StagingOrders
 
 
 --***************************** start Staging Customer Transactions************************************
+IF OBJECT_ID('dbo.StagingCustomerTransactions', 'U') IS NOT NULL
 drop table StagingCustomerTransactions
 CREATE TABLE StagingCustomerTransactions(
 	[CustomerTransactionID] [int] NOT NULL,
@@ -421,23 +439,27 @@ CREATE TABLE StagingCustomerTransactions(
 	[TransactionDate] [date] NOT NULL,
 	[AmountExcludingTax] [decimal](18, 2) NOT NULL,
 	[TaxAmount] [decimal](18, 2) NOT NULL,
-	[TransactionAmount] [decimal](18, 2) NOT NULL,
-	[OutstandingBalance] [decimal](18, 2) NOT NULL,
-	[FinalizationDate] [date] NULL,
-	[IsFinalized]  AS (case when [FinalizationDate] IS NULL then CONVERT([bit],(0)) else CONVERT([bit],(1)) end) PERSISTED,
+	[TransactionAmount] [decimal](18, 2) NOT NULL
 )
 Go
 create or alter procedure FillStagingCustomerTransactions as
 begin
+		declare @today date = (select max([TransactionDate]) from Sales.CustomerTransactions)
 		declare @last_added date = (select isnull(max([TransactionDate]),'2012-12-31') from StagingCustomerTransactions)
-		insert into StagingCustomerTransactions([CustomerTransactionID],[CustomerID],[TransactionTypeID],[InvoiceID],[PaymentMethodID],
-		[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount],[OutstandingBalance],[FinalizationDate])
-		select [CustomerTransactionID],[CustomerID],[TransactionTypeID],[InvoiceID],[PaymentMethodID],
-		[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount],[OutstandingBalance],[FinalizationDate]
-		from Sales.CustomerTransactions where TransactionDate > @last_added
+
+		while(@last_added < @today)begin
+		set @last_added = DATEADD(dd,1,@last_added)
+			insert into StagingCustomerTransactions([CustomerTransactionID],[CustomerID],[TransactionTypeID],[InvoiceID],[PaymentMethodID],
+			[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount])
+			select [CustomerTransactionID],[CustomerID],[TransactionTypeID],[InvoiceID],[PaymentMethodID],
+			[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount]
+			from Sales.CustomerTransactions where TransactionDate = @last_added
+		end
 end
+
 select * from StagingCustomerTransactions
 exec FillStagingCustomerTransactions
 select * from StagingCustomerTransactions
+
 
 --***************************** end Staging Customer Transactions**********************************************
