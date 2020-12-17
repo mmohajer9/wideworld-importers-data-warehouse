@@ -175,38 +175,57 @@ GO
 
 CREATE OR ALTER PROCEDURE FillStagingStockItemTransactions
 
-    @from_date DATETIME2 = '2012-12-31'
+    @from_date DATETIME2 = '2012-12-31',
+    @to_date DATETIME2 = '2020-12-31'
 
 AS
 BEGIN
+
+    --^ date of the last transaction in the "source table"
+    declare @today DATETIME2 = (
+        select ISNULL(MAX([TransactionOccurredWhen]) , @to_date) 
+        from [WideWorldImporters].[Warehouse].[StockItemTransactions]
+    )
+    
+    --^ date of the last transaction in the "staging area"
     DECLARE @last_added DATETIME2 = (
-        SELECT isnull(max([TransactionOccurredWhen]),@from_date)
+        SELECT ISNULL(MAX([TransactionOccurredWhen]) , @from_date)
         FROM [WWI-DW].[dbo].[StagingStockItemTransactions]
     )
-    INSERT INTO StagingStockItemTransactions
-        (
-        [StockItemTransactionID],
-        [StockItemID],
-        [TransactionTypeID],
-        [CustomerID],
-        [InvoiceID],
-        [SupplierID],
-        [PurchaseOrderID],
-        [TransactionOccurredWhen],
-        [Quantity]
-        )
-    SELECT
-        [StockItemTransactionID],
-        [StockItemID],
-        [TransactionTypeID],
-        [CustomerID],
-        [InvoiceID],
-        [SupplierID],
-        [PurchaseOrderID],
-        [TransactionOccurredWhen],
-        [Quantity]
-    FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
-    WHERE TransactionOccurredWhen > @last_added
+
+    while(@last_added < @today)
+    BEGIN
+        --? first we should go to the next day
+        SET @last_added = DATEADD(dd, 1, @last_added)
+
+        --? then we should insert new data day by day incrementally --> in opposite of bulk insert --> high load + efficient use of RAM
+        INSERT INTO StagingStockItemTransactions
+            (
+            [StockItemTransactionID],
+            [StockItemID],
+            [TransactionTypeID],
+            [CustomerID],
+            [InvoiceID],
+            [SupplierID],
+            [PurchaseOrderID],
+            [TransactionOccurredWhen],
+            [Quantity]
+            )
+        SELECT
+            [StockItemTransactionID],
+            [StockItemID],
+            [TransactionTypeID],
+            [CustomerID],
+            [InvoiceID],
+            [SupplierID],
+            [PurchaseOrderID],
+            [TransactionOccurredWhen],
+            [Quantity]
+        FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
+        WHERE (TransactionOccurredWhen >= @last_added AND TransactionOccurredWhen < DATEADD(dd, 1, @last_added))
+    END
+
+
 
 END
 --------------------------------------------------------------------------------------------------------------
@@ -234,3 +253,5 @@ GO
 exec FILL_STAGING_AREA;
 
 GO
+
+
