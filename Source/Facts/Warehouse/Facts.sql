@@ -74,21 +74,21 @@ CREATE TABLE dbo.FactDailyStockItemTran
     OuterPackageTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT NOT NULL FOREIGN KEY 
+    ColorID INT FOREIGN KEY 
     REFERENCES DimColors(ColorID),
 
-    CustomerKey INT NOT NULL FOREIGN KEY 
+    CustomerKey INT FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
 
     CustomerID INT,
 
-    InvoiceKey INT NOT NULL FOREIGN KEY 
+    InvoiceKey INT FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
 
-    SupplierID INT NOT NULL FOREIGN KEY 
+    SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
 
-    PurchaseOrderID INT NOT NULL FOREIGN KEY 
+    PurchaseOrderID INT FOREIGN KEY 
     REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
@@ -137,21 +137,21 @@ CREATE TABLE dbo.FactAccStockItemTran
     OuterPackageTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT NOT NULL FOREIGN KEY 
+    ColorID INT FOREIGN KEY 
     REFERENCES DimColors(ColorID),
 
-    CustomerKey INT NOT NULL FOREIGN KEY 
+    CustomerKey INT FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
 
     CustomerID INT,
 
-    InvoiceKey INT NOT NULL FOREIGN KEY 
+    InvoiceKey INT FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
 
-    SupplierID INT NOT NULL FOREIGN KEY 
+    SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
 
-    PurchaseOrderID INT NOT NULL FOREIGN KEY 
+    PurchaseOrderID INT FOREIGN KEY 
     REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 

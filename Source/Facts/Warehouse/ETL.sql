@@ -62,11 +62,15 @@ BEGIN
             ISNULL(b.UnitPackageTypeID , -1) as UnitPackageTypeID,
             ISNULL(b.OuterPackageTypeID , -1) as OuterPackageTypeID,
             ISNULL(b.ColorID , -1) as ColorID,
+            -- NULL,
+            -- NULL,
             ISNULL(CustomerKey , -1) as CustomerKey,
             ISNULL(a.CustomerID , -1) as CustomerID,
             ISNULL(InvoiceID , -1) as InvoiceID,
-            ISNULL(a.SupplierID , -1) as SupplierID,
-            ISNULL(PurchaseOrderID , -1) as PurchaseOrderID,
+            NULL,
+            NULL,
+            -- ISNULL(a.SupplierID , NULL) as SupplierID,
+            -- ISNULL(PurchaseOrderID , NULL) as PurchaseOrderID,
             TransactionTypeID,
             TimeKey,
             Quantity
@@ -75,8 +79,8 @@ BEGIN
         left outer join DimStockItems b on (a.StockItemID = b.StockItemID)
 		left outer join DimTime c on (a.TransactionOccurredWhen = c.FullDateAlternateKey)
         left outer join DimCustomer d on (d.CustomerID = a.CustomerID)
-		WHERE CurrentFlag = 1 or CurrentFlag is NULL
-        AND (TransactionOccurredWhen >= @LastAddedDate AND TransactionOccurredWhen < DATEADD(dd, 1, @LastAddedDate));
+		WHERE (TransactionOccurredWhen >= @LastAddedDate AND TransactionOccurredWhen < DATEADD(dd, 1, @LastAddedDate)) 
+        AND (CurrentFlag = 1 or CurrentFlag is NULL)
         
     END
 
