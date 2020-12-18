@@ -32,7 +32,7 @@ BEGIN
 	select 
 			PersonID,FullName,PreferredName,IsPermittedToLogon,IsExternalLogonProvider,IsSystemUser,IsEmployee,
 			IsSalesperson,UserPreferences,PhoneNumber,FaxNumber,EmailAddress,Photo,CustomFields
-	from Application.People
+	from [WideWorldImporters].Application.People
 
 END
 GO
@@ -55,7 +55,7 @@ create or alter procedure FillStagingPaymentMethods as
 begin
 	truncate table StagingPaymentMethods
 	insert into StagingPaymentMethods([PaymentMethodID],[PaymentMethodName])
-		select [PaymentMethodID],[PaymentMethodName] from Application.PaymentMethods
+		select [PaymentMethodID],[PaymentMethodName] from [WideWorldImporters].Application.PaymentMethods
 end
 
 select * from StagingPaymentMethods
@@ -78,7 +78,7 @@ create or alter procedure FillStagingDeliveryMethods as
 begin
 	truncate table StagingDeliveryMethods
 	insert into StagingDeliveryMethods([DeliveryMethodID],[DeliveryMethodName])
-		select [DeliveryMethodID],[DeliveryMethodName] from Application.DeliveryMethods
+		select [DeliveryMethodID],[DeliveryMethodName] from [WideWorldImporters].Application.DeliveryMethods
 end
 
 select * from StagingDeliveryMethods
@@ -103,7 +103,7 @@ CREATE or alter PROCEDURE FillStagingCities AS
 begin
 	truncate table StagingCities
 	insert into StagingCities(CityID,[CityName],[StateProvinceID],[LatestRecordedPopulation])
-	select CityID,[CityName],[StateProvinceID],[LatestRecordedPopulation] From Application.Cities
+	select CityID,[CityName],[StateProvinceID],[LatestRecordedPopulation] From [WideWorldImporters].Application.Cities
 end
 GO
 select * from StagingCities
@@ -132,7 +132,7 @@ begin
 	insert into StagingStateProvinces([StateProvinceID],[StateProvinceCode],[StateProvinceName],[CountryID],[SalesTerritory],
 		[LatestRecordedPopulation])
 	select [StateProvinceID],[StateProvinceCode],[StateProvinceName],[CountryID],[SalesTerritory],
-		[LatestRecordedPopulation] from Application.StateProvinces
+		[LatestRecordedPopulation] from [WideWorldImporters].Application.StateProvinces
 end
 GO
 select * from StagingStateProvinces
@@ -156,7 +156,7 @@ CREATE or alter PROCEDURE FillStagingBuyingGroups AS
 begin
 	truncate table StagingBuyingGroups
 	insert into StagingBuyingGroups([BuyingGroupID],[BuyingGroupName])
-	select [BuyingGroupID],[BuyingGroupName] from Sales.BuyingGroups
+	select [BuyingGroupID],[BuyingGroupName] from [WideWorldImporters].Sales.BuyingGroups
 end
 GO
 select * from StagingBuyingGroups
@@ -181,7 +181,7 @@ create or alter procedure FillStagingCustomerCategories as
 begin
 	truncate table StagingCustomerCategories
 	insert into StagingCustomerCategories([CustomerCategoryID],[CustomerCategoryName])
-		select [CustomerCategoryID],[CustomerCategoryName] from Sales.CustomerCategories
+		select [CustomerCategoryID],[CustomerCategoryName] from [WideWorldImporters].Sales.CustomerCategories
 end
 Go
 select * from StagingCustomerCategories
@@ -237,7 +237,7 @@ begin
 	select [CustomerID],[CustomerName],[BillToCustomerID],[CustomerCategoryID],[BuyingGroupID],[PrimaryContactPersonID],
 	[AlternateContactPersonID],[DeliveryMethodID],[DeliveryCityID],[PostalCityID],[CreditLimit],[AccountOpenedDate],[StandardDiscountPercentage],
 	[IsStatementSent],[IsOnCreditHold],[PaymentDays],[PhoneNumber],[FaxNumber],[DeliveryRun],[RunPosition],[WebsiteURL],[DeliveryAddressLine1],
-	[DeliveryAddressLine2],[DeliveryPostalCode],[PostalAddressLine1],[PostalAddressLine2],[PostalPostalCode] from Sales.Customers
+	[DeliveryAddressLine2],[DeliveryPostalCode],[PostalAddressLine1],[PostalAddressLine2],[PostalPostalCode] from [WideWorldImporters].Sales.Customers
 end
 GO
 select * from StagingCustomers
@@ -274,7 +274,7 @@ begin
 	insert into StagingInvoiceLines([InvoiceLineID],[InvoiceID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],
 	[TaxRate],[TaxAmount],[LineProfit],[ExtendedPrice])
 	select [InvoiceLineID],[InvoiceID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],
-	[TaxRate],[TaxAmount],[LineProfit],[ExtendedPrice] from Sales.InvoiceLines where InvoiceLineID not in (select id from tmp)
+	[TaxRate],[TaxAmount],[LineProfit],[ExtendedPrice] from [WideWorldImporters].Sales.InvoiceLines where InvoiceLineID not in (select id from tmp)
 	drop table tmp
 end
 go
@@ -323,8 +323,8 @@ begin
 	
 	truncate table StagingInvoices
 
-	declare @first_date date = (select isnull(min(InvoiceDate),'2012-12-31') from Sales.Invoices)
-	declare @last_date date = (select isnull(max(InvoiceDate),'2012-12-31') from Sales.Invoices)
+	declare @first_date date = (select isnull(min(InvoiceDate),'2012-12-31') from [WideWorldImporters].Sales.Invoices)
+	declare @last_date date = (select isnull(max(InvoiceDate),'2012-12-31') from [WideWorldImporters].Sales.Invoices)
 	while(@first_date <= @last_date) begin
 		insert into StagingInvoices([InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
 		[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
@@ -332,7 +332,7 @@ begin
 		select [InvoiceID],[CustomerID],[BillToCustomerID],[OrderID],[DeliveryMethodID],[ContactPersonID],[AccountsPersonID],
 		[SalespersonPersonID],[PackedByPersonID],[InvoiceDate],[CustomerPurchaseOrderNumber],[IsCreditNote],[CreditNoteReason],[Comments],
 		[DeliveryInstructions],[InternalComments],[TotalDryItems],[TotalChillerItems],[DeliveryRun],[RunPosition],[ReturnedDeliveryData]
-		from Sales.Invoices where InvoiceDate = @first_date
+		from [WideWorldImporters].Sales.Invoices where InvoiceDate = @first_date
 		set @first_date = DATEADD(dd,1,@first_date)
 	end
 
@@ -373,7 +373,7 @@ begin
 	[PickedQuantity],[PickingCompletedWhen])
 	select [OrderLineID],[OrderID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],[TaxRate],
 	[PickedQuantity],[PickingCompletedWhen]
-	from Sales.OrderLines where [OrderLineID] not in (select id from tmp)
+	from [WideWorldImporters].Sales.OrderLines where [OrderLineID] not in (select id from tmp)
 	drop table tmp
 end
 select * from StagingOrderLines
@@ -412,7 +412,7 @@ begin
 			[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[DeliveryInstructions])
 	select [OrderID],[CustomerID],[SalespersonPersonID],[PickedByPersonID],[ContactPersonID],[BackorderOrderID],
 			[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[DeliveryInstructions]
-		from Sales.Orders where OrderID not in (select id from tmp)
+		from [WideWorldImporters].Sales.Orders where OrderID not in (select id from tmp)
 	drop table tmp
 end
 
@@ -444,7 +444,7 @@ CREATE TABLE StagingCustomerTransactions(
 Go
 create or alter procedure FillStagingCustomerTransactions as
 begin
-		declare @today date = (select max([TransactionDate]) from Sales.CustomerTransactions)
+		declare @today date = (select max([TransactionDate]) from [WideWorldImporters].Sales.CustomerTransactions)
 		declare @last_added date = (select isnull(max([TransactionDate]),'2012-12-31') from StagingCustomerTransactions)
 
 		while(@last_added < @today)begin
@@ -453,7 +453,7 @@ begin
 			[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount])
 			select [CustomerTransactionID],[CustomerID],[TransactionTypeID],[InvoiceID],[PaymentMethodID],
 			[TransactionDate],[AmountExcludingTax],[TaxAmount],[TransactionAmount]
-			from Sales.CustomerTransactions where TransactionDate = @last_added
+			from [WideWorldImporters].Sales.CustomerTransactions where TransactionDate = @last_added
 		end
 end
 
