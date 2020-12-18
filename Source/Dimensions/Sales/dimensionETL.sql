@@ -8,8 +8,9 @@ CREATE OR ALTER  Procedure FillDimOrder as
 Begin
 	
 	declare @init bit = (select isnull((select OrderKey from DimOrder where DimOrder.OrderKey = -1), 0))
-	if(@init = 0) 
+	if(@init = 0) begin
 		insert into DimOrder(OrderKey) values(-1)
+	end
 
 	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
 	DROP TABLE TMP
@@ -41,11 +42,14 @@ GO
 --***************************************************************** START CUSTOMER DIMENTION AREA*************************
 CREATE OR ALTER PROCEDURE FillDimCustomer AS
 BEGIN
+
 	SET IDENTITY_INSERT DimCustomer ON
 	declare @init bit = (select isnull((select CustomerKey from DimCustomer where DimCustomer.CustomerKey = -1), 0))
-	if(@init = 0) 
+	if(@init = 0) begin
 		insert into DimCustomer(CustomerKey) values(-1)
+		end
 	SET IDENTITY_INSERT DimCustomer OFF
+
 
 
 	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
@@ -71,6 +75,7 @@ BEGIN
 		IF OBJECT_ID('dbo.TMP_ID', 'U') IS NOT NULL
 		DROP TABLE TMP_ID
 		CREATE TABLE TMP_ID(ID int)
+
 		INSERT INTO TMP_ID
 			SELECT TMP.CustomerID from TMP JOIN DimCustomer ON DimCustomer.CustomerID = TMP.CustomerID AND 
 				DimCustomer.PhoneNumber <> TMP.PhoneNumber
@@ -82,8 +87,10 @@ BEGIN
 		select 'update','DimCustomer',getdate(), DimCustomer.CustomerID,DimCustomer.CustomerKey 
 		from DimCustomer where DimCustomer.CustomerID  in(select ID from TMP_ID)
 
+
 		insert into TMP_ID
-			select CustomerID from TMP where CustomerID not in (select CustomerID from DimCustomer)
+			select CustomerID from TMP where CustomerID not in (select isnull(CustomerID,-1) from DimCustomer)
+
 		INSERT INTO DimCustomer (CustomerID ,CustomerName ,CategoryID ,CategoryName ,BuyingGroupID ,BuyingGroupName ,AccountOpenDate ,
 					Website ,DeliveryCityID,DeliveryCityName,DeliveryProvinceName,DeliveryAddressLine1 ,DeliveryAddressLine2 ,DeliveryPostalCode ,PrimaryContactPersonID ,
 					PrimaryContactName ,PhoneNumber ,EndDate ,StartDate ,CurrentFlag)
