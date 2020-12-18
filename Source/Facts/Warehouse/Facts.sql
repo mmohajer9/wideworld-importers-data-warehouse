@@ -80,6 +80,8 @@ CREATE TABLE dbo.FactDailyStockItemTran
     CustomerKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
 
+    CustomerID INT,
+
     InvoiceKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
 
@@ -140,6 +142,8 @@ CREATE TABLE dbo.FactAccStockItemTran
 
     CustomerKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
+
+    CustomerID INT,
 
     InvoiceKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
