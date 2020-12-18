@@ -139,7 +139,7 @@ CREATE TABLE dbo.StagingStockItemTransactions
 	[InvoiceID] [int] NULL,
 	[SupplierID] [int] NULL,
 	[PurchaseOrderID] [int] NULL,
-	[TransactionOccurredWhen] [datetime2](7) NOT NULL,
+	[TransactionOccurredWhen] [DATE] NOT NULL,
 	[Quantity] [decimal](18, 3) NOT NULL,
 );
 GO

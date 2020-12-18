@@ -523,6 +523,81 @@ BEGIN
     EXECUTE SCD1_DimColors;
     EXECUTE SCD3_DimStockItems;
 
+    INSERT INTO DimStockGroup (StockGroupID,StockGroupName)
+    VALUES(
+        -1,'UNKNOWN'
+    )
+
+    INSERT INTO DimPackageTypes (PackageTypeID,PackageTypeName)
+    VALUES(
+        -1,'UNKNOWN'
+    )
+
+    INSERT INTO DimTransactionTypes (TransactionTypeID,TransactionTypeName)
+    VALUES(
+        -1,'UNKNOWN'
+    )
+
+    INSERT INTO DimColors (ColorID,ColorName)
+    VALUES(
+        -1,'UNKNOWN'
+    )
+
+    INSERT INTO DimStockItems (
+        StockItemID,
+        StockItemName,
+        SupplierID,
+        Brand,
+        Size,
+        IsChillerStock,
+        Barcode,
+        ColorID,
+        ColorName,
+        UnitPackageTypeID,
+        UnitPackageTypeName,
+        OuterPackageTypeID,
+        OuterPackageTypeName,
+        TaxRate,
+        UnitPrice,
+        RecommendedRetailPrice,
+        TypicalWeightPerUnit,
+        LastCostPrice,
+        QuantityOnHand,
+        LastStocktakeQuantity,
+        TargetStockLevel,
+        ReorderLevel,
+        OriginalBinLocation,
+        CurrentBinLocation,
+        EffectiveDate
+    )
+    VALUES(
+        -1,
+        'UNKNOWN',
+        -1,
+        NULL,
+        NULL,
+        0,
+        NULL,
+        -1,
+        'UNKNOWN',
+        -1,
+        'UNKNOWN',
+        -1,
+        'UNKNOWN',
+        0,      
+        0,  
+        0,
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        'UNKNOWN',
+        'UNKNOWN',
+        '2012-12-31'
+    )
+
 END
 --------------------------------------------------------------------------------------------------------------
 GO
