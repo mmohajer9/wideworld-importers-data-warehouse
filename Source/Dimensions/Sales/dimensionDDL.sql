@@ -96,12 +96,6 @@ IF OBJECT_ID('dbo.DimPayment', 'U') IS NOT NULL
 drop table DimPayment
 CREATE TABLE DimPayment (PaymentKey int primary key , PaymentMethodName nvarchar(100))
 Go
-CREATE OR ALTER PROCEDURE FillDimPayment AS
-BEGIN
-	truncate table dbo.DimPayment
-	Insert Into dbo.DimPayment(PaymentKey, PaymentMethodName)
-		select PaymentMethodID, PaymentMethodName from StagingPaymentMethods
-END
 --***************************************************************** END PAYMENT DIMENTION AREA*************************
 
 
@@ -131,4 +125,3 @@ create table DimPeople(
 )
 Go
 --***************************************************************** END PEOPLE DIMENTION AREA*************************
-

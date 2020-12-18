@@ -1,7 +1,7 @@
 use WideWorldImporters
 
 
-
+Go
 create or alter procedure FillFactTransaction (@date date) AS
 begin
 
@@ -28,7 +28,7 @@ begin
 		set @max_date = DATEADD(dd,1,@max_date)
 		insert into tmp(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 		AmountExcludingTax,TaxAmount,TransactionAmount)
-		select isnull(dimTime.TimeKey,-1), isnull(Transactions.CustomerID,-1), isnull(DimOrder.OrderKey,-1), 
+		select isnull(dimTime.TimeKey,-1), isnull(DimCustomer.CustomerKey,-1), isnull(DimOrder.OrderKey,-1), 
 		isnull(Transactions.InvoiceID,-1),isnull(DimPeople.PeopleKey,-1),isnull(Transactions.TransactionTypeID,-1), isnull(Transactions.PaymentMethodID,-1),
 		Transactions.CustomerTransactionID,Transactions.AmountExcludingTax, Transactions.TaxAmount, Transactions.TransactionAmount 
 		from StagingCustomerTransactions as Transactions 
@@ -37,24 +37,23 @@ begin
 			left join DimOrder On DimOrder.OrderKey = DimInvoice.OrderID
 			left join DimPeople on DimPeople.PeopleKey = DimOrder.PrimaryContactPersonID
 			left join DimPayment on DimPayment.PaymentKey = Transactions.PaymentMethodID
+			left join DimCustomer on DimCustomer.CustomerID = Transactions.CustomerID and DimCustomer.CurrentFlag = 1
 		
 	end
 
+	
 	insert into FactTransaction(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 		AmountExcludingTax,TaxAmount,TransactionAmount)
 		select TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 		AmountExcludingTax,TaxAmount,TransactionAmount from tmp
+
 		
 	insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
 		select 'insert', 'FactTransaction',getdate(),tmp.TransactionID,null from tmp
-
+		
 	drop table tmp
 
 end
 GO
 
-;----------------Procedure---------------------------
-declare @today date = '2013-10-10'--(select getdate())
-exec FillFactTransaction @date = @today
-select * from FactTransaction
-;----------------TransAction Fact table---------------------------
+

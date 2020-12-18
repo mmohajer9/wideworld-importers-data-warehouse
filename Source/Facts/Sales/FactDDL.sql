@@ -21,9 +21,8 @@ create table FactTransaction(
 GO
 
 
-
-
 ;----------------Acc fact table---------------------------
+IF OBJECT_ID('dbo.FactAcc', 'U') IS NOT NULL
 drop table FactAcc
 create table FactAcc(
 	AccKey int IDENTITY(1,1) primary key,
@@ -43,6 +42,7 @@ Go
 
 
 ;----------------Periodic fact table---------------------------
+IF OBJECT_ID('dbo.FactPeriodict', 'U') IS NOT NULL
 drop table FactPeriodict
 create table FactPeriodict(
 	FactPeriodicKey int IDENTITY(1,1) primary key,

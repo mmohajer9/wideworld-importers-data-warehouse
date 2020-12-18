@@ -6,11 +6,15 @@ use WideWorldImporters
 Go
 CREATE OR ALTER  Procedure FillDimOrder as
 Begin
+	
+	declare @init bit = (select isnull((select OrderKey from DimOrder where DimOrder.OrderKey = -1), 0))
+	if(@init = 0) 
+		insert into DimOrder(OrderKey) values(-1)
 
 	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
 	DROP TABLE TMP
-	CREATE TABLE TMP(OrderID int)
-	insert into TMP select Distinct OrderKey from DimOrder
+	CREATE TABLE TMP(ID int)
+	insert into TMP(ID) select Distinct OrderKey from DimOrder
 
 	INSERT INTO dbo.DimOrder (OrderKey, CustomerID, CustomerName, OrderDate, ExpectedDelivareDate,
 	 PrimaryContactPersonID, PrimaryContactName, PrimaryContactPhone)
@@ -19,10 +23,10 @@ Begin
 			StagingOrders.ContactPersonID, StagingPeople.FullName, StagingPeople.PhoneNumber
 	from StagingOrders JOIN StagingCustomers ON StagingCustomers.CustomerID = StagingOrders.CustomerID
 			JOIN StagingPeople ON StagingPeople.PersonID = StagingOrders.ContactPersonID
-			where StagingOrders.OrderID Not IN (select TMP.OrderID from TMP)
+			where StagingOrders.OrderID Not IN (select TMP.ID from TMP)
 
 	insert into LogSales(ActionName,TableName,date,RecordId)
-	select 'insert','DimOrder',getdate(),DimOrder.OrderKey from DimOrder where OrderKey Not in(select tmp.OrderID from TMP)
+	select 'insert','DimOrder',getdate(),DimOrder.OrderKey from DimOrder where OrderKey Not in(select tmp.ID from TMP)
 
 	DROP TABLE TMP
 END
@@ -37,6 +41,13 @@ GO
 --***************************************************************** START CUSTOMER DIMENTION AREA*************************
 CREATE OR ALTER PROCEDURE FillDimCustomer AS
 BEGIN
+	SET IDENTITY_INSERT DimCustomer ON
+	declare @init bit = (select isnull((select CustomerKey from DimCustomer where DimCustomer.CustomerKey = -1), 0))
+	if(@init = 0) 
+		insert into DimCustomer(CustomerKey) values(-1)
+	SET IDENTITY_INSERT DimCustomer OFF
+
+
 	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
 	DROP TABLE TMP
 	CREATE TABLE TMP(
@@ -101,6 +112,10 @@ GO
 CREATE OR ALTER PROCEDURE FillDimInvoice AS
 BEGIN
 
+	declare @init bit = (select isnull((select InvoiceKey from DimInvoice where DimInvoice.InvoiceKey = -1), 0))
+	if(@init = 0) 
+		insert into DimInvoice(InvoiceKey) values(-1)
+
 	IF OBJECT_ID('dbo.TMP_ID', 'U') IS NOT NULL
 	DROP TABLE TMP_ID
 	CREATE TABLE TMP_ID (ID int)
@@ -148,9 +163,18 @@ Go
 --***************************************************************** START PAYMENT DIMENTION AREA*************************
 CREATE OR ALTER PROCEDURE FillDimPayment AS
 BEGIN
-	truncate table dbo.DimPayment
+	declare @init bit = (select isnull((select PaymentKey from DimPayment where DimPayment.PaymentKey = -1), 0))
+	if(@init = 0) 
+		insert into DimPayment(PaymentKey) values(-1)
+
+	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
+	DROP TABLE tmp
+	create table tmp(id int)
+		insert into tmp(id) select PaymentKey from DimPayment
+	
 	Insert Into dbo.DimPayment(PaymentKey, PaymentMethodName)
-		select PaymentMethodID, PaymentMethodName from StagingPaymentMethods
+		select PaymentMethodID, PaymentMethodName from StagingPaymentMethods where PaymentMethodID not in (select id from tmp)
+	DROP TABLE tmp	
 END
 Go
 --***************************************************************** END PAYMENT DIMENTION AREA*************************
@@ -166,6 +190,10 @@ Go
 CREATE OR ALTER PROCEDURE FillDimPeople AS
 BEGIN
 	declare @today date = getdate()
+
+	declare @init bit = (select isnull((select PeopleKey from DimPeople where DimPeople.PeopleKey = -1), 0))
+	if(@init = 0) 
+		insert into DimPeople(PeopleKey) values(-1)
 
 	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
 	DROP TABLE tmp

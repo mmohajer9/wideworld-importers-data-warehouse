@@ -3,7 +3,9 @@ use WideWorldImporters
 
 
 
-;----------------Procedure---------------------------
+
+IF OBJECT_ID('dbo.LogSales', 'U') IS NOT NULL
+drop table LogSales
 create table LogSales(
 	Id bigint IDENTITY(1,1) primary key,
 	ActionName nvarchar(30),
