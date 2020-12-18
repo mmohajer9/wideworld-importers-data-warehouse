@@ -26,6 +26,8 @@ CREATE TABLE dbo.FactStockItemTran
     CustomerKey INT FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
 
+    CustomerID INT,
+
     InvoiceKey INT FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
 
