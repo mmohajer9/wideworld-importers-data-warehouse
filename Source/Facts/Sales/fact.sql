@@ -6,8 +6,6 @@ use WideWorldImporters
 
 
 
-
-
 ;----------------TransAction Fact table---------------------------
 IF OBJECT_ID('dbo.FactTransaction', 'U') IS NOT NULL
 drop table FactTransaction
@@ -19,7 +17,7 @@ create table FactTransaction(
 	PeopleKey int FOREIGN KEY REFERENCES DimPeople(PeopleKey),
 	TransactionTypeKey int FOREIGN KEY REFERENCES DimTransactionTypes(TransactionTypeID),
 	PaymentMethodKey int FOREIGN KEY REFERENCES DimPayment(PaymentKey),
-	TransactionID int ,
+	TransactionID int primary key ,
 	AmountExcludingTax decimal(25,3),
 	TaxAmount decimal(25,3),
 	TransactionAmount decimal(25,3)
@@ -46,6 +44,7 @@ begin
 	)
 
 	while(@max_date<@date) begin
+		set @max_date = DATEADD(dd,1,@max_date)
 		insert into tmp(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 		AmountExcludingTax,TaxAmount,TransactionAmount)
 		select isnull(dimTime.TimeKey,-1), isnull(Transactions.CustomerID,-1), isnull(DimOrder.OrderKey,-1), 
@@ -57,7 +56,7 @@ begin
 			left join DimOrder On DimOrder.OrderKey = DimInvoice.OrderID
 			left join DimPeople on DimPeople.PeopleKey = DimOrder.PrimaryContactPersonID
 			left join DimPayment on DimPayment.PaymentKey = Transactions.PaymentMethodID
-		set @max_date = DATEADD(dd,1,@max_date)
+		
 	end
 
 	insert into FactTransaction(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
@@ -98,24 +97,28 @@ select * from FactTransaction
 
 
 
-
 ;----------------Acc fact table---------------------------
-drop table acc_fact
-create table acc_fact(
-	acc_fact_id int IDENTITY(1,1) primary key,
-	customer_id int FOREIGN KEY REFERENCES dbo.customer_dim(customer_id),
-	order_id int FOREIGN KEY REFERENCES dbo.order_dim(order_dim_id),
-	invoice_id int FOREIGN KEY REFERENCES dbo.invoice_dim(invoice_id),
-	total_buy_price int,
-	number_of_purchases int,
-	most_frequent_buy nvarchar(256),
-	total_delivared_later_that_expected int
+drop table FactAcc
+create table FactAcc(
+	AccKey int IDENTITY(1,1) primary key,
+	CustomerKey int FOREIGN KEY REFERENCES DimCustomer(CustomerKey),
+	OrderKey int FOREIGN KEY REFERENCES DimOrder(OrderKey),
+	InvoiceKey int FOREIGN KEY REFERENCES DimInvoice(InvoiceKey),
+	PeopleKey int FOREIGN KEY REFERENCES DimPeople(PeopleKey),
+	TransactionTypeKey int FOREIGN KEY REFERENCES DimTransactionTypes(TransactionTypeID),
+	PaymentMethodKey int FOREIGN KEY REFERENCES DimPayment(PaymentKey),
+	TotalBuyPrice int,
+	NumberOfPurchases int,
+	MostFrequentBuy nvarchar(256),
+	TotalDelivaredLaterThatExpected int,
+	TotalProfit int
 )
 
 
 ;----------------Periodic fact table---------------------------
 drop table FactPeriodict
 create table FactPeriodict(
+	FactPeriodicKey int IDENTITY(1,1) primary key,
 	TimeKey int FOREIGN KEY REFERENCES DimTime(TimeKey),
 	CustomerKey int FOREIGN KEY REFERENCES DimCustomer(CustomerKey),
 	OrderKey int FOREIGN KEY REFERENCES DimOrder(OrderKey),
@@ -132,3 +135,14 @@ create table FactPeriodict(
 	InActiveDayCount int
 )
 ;----------------Procedure---------------------------
+
+
+create table LogSales(
+	Id bigint IDENTITY(1,1) primary key,
+	ActionName nvarchar(30),
+	TableName nvarchar(100),
+	date date,
+	RecordId	int,
+	RecordSurrogateKey int null)
+
+Go
