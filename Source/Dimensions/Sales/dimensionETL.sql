@@ -3,24 +3,12 @@ use WideWorldImporters
 
 
 --***************************************************************** START ORDER DIMENTION AREA*************************
-;----------------order dim table---------------------------
-IF OBJECT_ID('dbo.DimOrder', 'U') IS NOT NULL
-drop table DimOrder
-create table DimOrder(
-	OrderKey int primary key,
-	CustomerID nvarchar(256),
-	CustomerName nvarchar(200),
-	OrderDate date,
-	ExpectedDelivareDate date,
-	PrimaryContactPersonID int,
-	PrimaryContactName nvarchar(100),
-	PrimaryContactPhone nvarchar (25)
-)
 Go
-;--------------------Fill Procedure------------------------------
 CREATE OR ALTER  Procedure FillDimOrder as
 Begin
 
+	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
+	DROP TABLE TMP
 	CREATE TABLE TMP(OrderID int)
 	insert into TMP select Distinct OrderKey from DimOrder
 
@@ -38,9 +26,7 @@ Begin
 
 	DROP TABLE TMP
 END
-;--------------------END Fill Procedure--------------------------
-EXEC FillDimOrder
-SELECT * FROM DimOrder order by OrderKey
+GO
 --***************************************************************** END ORDER DIMENTION AREA*************************
 
 
@@ -49,37 +35,10 @@ SELECT * FROM DimOrder order by OrderKey
 
 
 --***************************************************************** START CUSTOMER DIMENTION AREA*************************
-;----------------customer dim table---------------------------
-IF OBJECT_ID('dbo.DimCustomer', 'U') IS NOT NULL
-drop table DimCustomer
-create table DimCustomer(
-	CustomerKey int IDENTITY(1,1) primary key, -- surggate key
-	CustomerID int,
-	CustomerName nvarchar(200),
-	CategoryID int,
-	CategoryName nvarchar(256),
-	BuyingGroupID int,
-	BuyingGroupName nvarchar(100),
-	AccountOpenDate date,
-	Website nvarchar(300),
-	DeliveryCityID int,
-	DeliveryCityName nvarchar(100),
-	DeliveryProvinceName nvarchar(100),
-	DeliveryAddressLine1 nvarchar(100),
-	DeliveryAddressLine2 nvarchar(100),
-	DeliveryPostalCode nvarchar(20),
-	PrimaryContactPersonID int,
-	PrimaryContactName nvarchar(100),
-	PhoneNumber nvarchar(30), -- can change with scd type 2
-	StartDate date,
-	EndDate date,
-	CurrentFlag bit
-)
-GO
-;--------------------Fill Procedure------------------------------
 CREATE OR ALTER PROCEDURE FillDimCustomer AS
 BEGIN
-
+	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
+	DROP TABLE TMP
 	CREATE TABLE TMP(
 		CustomerID int,CustomerName nvarchar(200),CategoryID int,CategoryName nvarchar(256),BuyingGroupID int,BuyingGroupName nvarchar(100),
 		AccountOpenDate date,Website nvarchar(300),DeliveryCityID int,DeliveryCityName nvarchar(100),DeliveryProvinceName nvarchar(100),
@@ -98,6 +57,8 @@ BEGIN
 		Join StagingCities As City On Customer.DeliveryCityID = City.CityID
 		Join StagingStateProvinces As Province ON City.StateProvinceID = Province.StateProvinceID
 
+		IF OBJECT_ID('dbo.TMP_ID', 'U') IS NOT NULL
+		DROP TABLE TMP_ID
 		CREATE TABLE TMP_ID(ID int)
 		INSERT INTO TMP_ID
 			SELECT TMP.CustomerID from TMP JOIN DimCustomer ON DimCustomer.CustomerID = TMP.CustomerID AND 
@@ -127,9 +88,7 @@ BEGIN
 		DROP table TMP
 		DROP Table TMP_ID
 END
-;--------------------END Fill Procedure--------------------------
-EXEC FillDimCustomer
-SELECT * FROM DimCustomer order by CustomerID
+GO
 --***************************************************************** END CUSTOMER DIMENTION AREA*************************
 
 
@@ -139,30 +98,11 @@ SELECT * FROM DimCustomer order by CustomerID
 
 
 --***************************************************************** START INVOICE DIMENTION AREA*************************
-;----------------invoice dim table---------------------------
-IF OBJECT_ID('dbo.DimInvoice', 'U') IS NOT NULL
-drop table DimInvoice
-create table DimInvoice(
-	InvoiceKey int primary key,
-	CustomerID int,
-	CustomerName nvarchar(200),
-	BillToCustomerID int,
-	BillCustomerName nvarchar(200),
-	OrderID int,
-	InvoiceDate date,
-	PackedByPersonID int,
-	PackedByPersonName nvarchar(100),
-	DeliveryMethodID int,
-	DeliveryMethodName nvarchar(100),
-	DeliveryAddress nvarchar(max),
-	DeliveryDate datetime null, --scd type one
-	ReceivedBy nvarchar(200) null --scd type one
-)
-Go
-;--------------------Fill Procedure------------------------------
 CREATE OR ALTER PROCEDURE FillDimInvoice AS
 BEGIN
 
+	IF OBJECT_ID('dbo.TMP_ID', 'U') IS NOT NULL
+	DROP TABLE TMP_ID
 	CREATE TABLE TMP_ID (ID int)
 	INSERT INTO TMP_ID
 		SELECT DISTINCT InvoiceKey FROM DimInvoice WHERE DimInvoice.DeliveryDate IS NULL AND DimInvoice.ReceivedBy IS NULL
@@ -193,15 +133,9 @@ BEGIN
 	insert into LogSales(ActionName,TableName,date,RecordId)
 	select 'insert','DimInvoice',getdate(), DimInvoice.InvoiceKey
 	from DimInvoice where DimInvoice.InvoiceKey not in(select ID from TMP_ID)
-
-
 	DROP TABLE TMP_ID;
 END
-
-
-;--------------------END Fill Procedure--------------------------
-EXEC FillDimInvoice
-select * from DimInvoice
+Go
 --***************************************************************** END INVOICE DIMENTION AREA*************************
 
 
@@ -212,19 +146,13 @@ select * from DimInvoice
 
 
 --***************************************************************** START PAYMENT DIMENTION AREA*************************
-IF OBJECT_ID('dbo.DimPayment', 'U') IS NOT NULL
-drop table DimPayment
-CREATE TABLE DimPayment (PaymentKey int primary key , PaymentMethodName nvarchar(100))
-Go
 CREATE OR ALTER PROCEDURE FillDimPayment AS
 BEGIN
 	truncate table dbo.DimPayment
 	Insert Into dbo.DimPayment(PaymentKey, PaymentMethodName)
 		select PaymentMethodID, PaymentMethodName from StagingPaymentMethods
 END
-;--------------------END Fill Procedure--------------------------
-exec FillDimPayment
-select * from DimPayment
+Go
 --***************************************************************** END PAYMENT DIMENTION AREA*************************
 
 
@@ -235,29 +163,12 @@ select * from DimPayment
 
 
 --***************************************************************** START PEOPLE DIMENTION AREA*************************
-;----------------people dim table---------------------------
-IF OBJECT_ID('dbo.DimPeople', 'U') IS NOT NULL
-drop table DimPeople
-create table DimPeople(
-	PeopleKey int primary key,
-	FullName nvarchar(100),
-	PreferredName nvarchar(100),
-	IsEmployee bit,
-	IsSalesPerson bit,
-	CurrentPhoneNumber nvarchar(30),--scd type three
-	PreviousPhoneNumber nvarchar(30),
-	PhoneEffectiveDate date,
-	FaxNumber nvarchar(30),
-	CurrentEmailAddress nvarchar(300),--scd type three
-	PreviousEmailAddress nvarchar(300),
-	EmailEffectiveDate date
-)
-Go
-;--------------------Fill Procedure------------------------------
 CREATE OR ALTER PROCEDURE FillDimPeople AS
 BEGIN
 	declare @today date = getdate()
 
+	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
+	DROP TABLE tmp
 	create table tmp(PeopleKey int)
 	insert into tmp(PeopleKey)
 		select PeopleKey From DimPeople Join StagingPeople as People ON
@@ -299,8 +210,6 @@ BEGIN
 
 	drop table tmp
 END
-;--------------------END Fill Procedure--------------------------
-exec FillDimPeople
-select * from DimPeople order by PeopleKey
+Go
 --***************************************************************** END PEOPLE DIMENTION AREA*************************
 
