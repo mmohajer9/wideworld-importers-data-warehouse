@@ -23,3 +23,11 @@ CREATE TABLE [dbo].[DimTime](
   [CalendarSemester] [nvarchar](255) NULL,
   [PersianCalendarSemester] [nvarchar](255) NULL
 )
+
+
+ALTER TABLE [WWI-DW].dbo.DimTime 
+ALTER COLUMN TimeKey INT NOT NULL;
+
+
+ALTER TABLE [WWI-DW].dbo.DimTime
+ADD CONSTRAINT PK_TimeKey PRIMARY KEY (TimeKey)

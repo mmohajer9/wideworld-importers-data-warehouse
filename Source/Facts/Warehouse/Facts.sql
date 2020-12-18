@@ -6,8 +6,6 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StockItemTranFact
 (
-
-
     StockItemTransactionID INT NOT NULL PRIMARY KEY,
     -- primary key column
 
