@@ -14,20 +14,26 @@ CREATE TABLE dbo.FactStockItemTran
     StockItemID INT NOT NULL FOREIGN KEY 
     REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT NOT NULL FOREIGN KEY 
+    UnitPackageTypeID INT FOREIGN KEY 
     REFERENCES DimPackageTypes(PackageTypeID),
 
-    OuterPackageTypeID INT NOT NULL FOREIGN KEY 
+    OuterPackageTypeID INT FOREIGN KEY 
     REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT NOT NULL FOREIGN KEY 
+    ColorID INT FOREIGN KEY 
     REFERENCES DimColors(ColorID),
 
-    CustomerKey INT NOT NULL FOREIGN KEY 
+    CustomerKey INT FOREIGN KEY 
     REFERENCES DimCustomer(CustomerKey),
 
-    InvoiceKey INT NOT NULL FOREIGN KEY 
+    InvoiceKey INT FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
+
+    SupplierID INT FOREIGN KEY 
+    REFERENCES DimSuplier(SupplierID),
+
+    PurchaseOrderID INT FOREIGN KEY 
+    REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
@@ -38,7 +44,6 @@ CREATE TABLE dbo.FactStockItemTran
     --^ MEASURES --> transactional
 
     MovementQuantity [NUMERIC](20 , 3) NOT NULL,
-    TotalMovementQuantityTillNow [NUMERIC](20 , 3) NOT NULL,
 );
 GO
 
@@ -75,6 +80,12 @@ CREATE TABLE dbo.FactDailyStockItemTran
 
     InvoiceKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
+
+    SupplierID INT NOT NULL FOREIGN KEY 
+    REFERENCES DimSuplier(SupplierID),
+
+    PurchaseOrderID INT NOT NULL FOREIGN KEY 
+    REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
@@ -130,6 +141,12 @@ CREATE TABLE dbo.FactAccStockItemTran
 
     InvoiceKey INT NOT NULL FOREIGN KEY 
     REFERENCES DimInvoice(InvoiceKey),
+
+    SupplierID INT NOT NULL FOREIGN KEY 
+    REFERENCES DimSuplier(SupplierID),
+
+    PurchaseOrderID INT NOT NULL FOREIGN KEY 
+    REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
