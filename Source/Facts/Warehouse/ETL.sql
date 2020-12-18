@@ -83,6 +83,8 @@ BEGIN
         
     END
 
+    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));  
+
     INSERT INTO FactStockItemTran
     (
         StockItemTransactionID,
@@ -117,6 +119,14 @@ BEGIN
 
     --? LOG
 
+     
+
+    EXEC AddFactLog
+        @procedure_name = 'FillStockItemTranFact',
+        @action = 'INSERT',
+        @FactName = 'FactStockItemTran',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
 
 
 END
