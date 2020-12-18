@@ -67,6 +67,7 @@ BEGIN
             ISNULL(InvoiceID , -1) as InvoiceID,
             NULL,
             NULL,
+            -- FIXME: --^ FIX WITH JAVAD
             -- ISNULL(a.SupplierID , NULL) as SupplierID,
             -- ISNULL(PurchaseOrderID , NULL) as PurchaseOrderID,
             TransactionTypeID,
