@@ -1,10 +1,10 @@
--- Create a new table called 'StockItemTranFact' in schema 'dbo'
+-- Create a new table called 'FactStockItemTran' in schema 'dbo'
 -- Drop the table if it already exists
-IF OBJECT_ID('dbo.StockItemTranFact', 'U') IS NOT NULL
-DROP TABLE dbo.StockItemTranFact
+IF OBJECT_ID('dbo.FactStockItemTran', 'U') IS NOT NULL
+DROP TABLE dbo.FactStockItemTran
 GO
 -- Create the table in the specified schema
-CREATE TABLE dbo.StockItemTranFact
+CREATE TABLE dbo.FactStockItemTran
 (
     StockItemTransactionID INT NOT NULL PRIMARY KEY,
     -- primary key column
@@ -32,7 +32,7 @@ CREATE TABLE dbo.StockItemTranFact
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
 
-    TransactionDate [DATE] NOT NULL FOREIGN KEY 
+    TransactionDate INT NOT NULL FOREIGN KEY 
     REFERENCES DimTime(TimeKey),
 
     --^ MEASURES --> transactional
@@ -44,13 +44,13 @@ GO
 
 
 
--- Create a new table called 'StockItemTranDailyFact' in schema 'dbo'
+-- Create a new table called 'FactDailyStockItemTran' in schema 'dbo'
 -- Drop the table if it already exists
-IF OBJECT_ID('dbo.StockItemTranDailyFact', 'U') IS NOT NULL
-DROP TABLE dbo.StockItemTranDailyFact
+IF OBJECT_ID('dbo.FactDailyStockItemTran', 'U') IS NOT NULL
+DROP TABLE dbo.FactDailyStockItemTran
 GO
 -- Create the table in the specified schema
-CREATE TABLE dbo.StockItemTranDailyFact
+CREATE TABLE dbo.FactDailyStockItemTran
 (
 
     --? Surrogate Key --> be ezaye har stock item har rooz 1 record
@@ -79,7 +79,7 @@ CREATE TABLE dbo.StockItemTranDailyFact
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
 
-    EffectiveDate [DATE] NOT NULL FOREIGN KEY 
+    EffectiveDate INT NOT NULL FOREIGN KEY 
     REFERENCES DimTime(TimeKey),
 
     --^ MEASURES --> Daily Fact
@@ -87,7 +87,11 @@ CREATE TABLE dbo.StockItemTranDailyFact
     TotalMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
     TotalEntryMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
     TotalWriteOffMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
+
     TotalDaysOffCountTillToday INT NOT NULL,
+
+    MaximumMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
+    MinimumMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
     
 
 );
@@ -95,13 +99,13 @@ GO
 
 
 
--- Create a new table called 'StockItemTranAccumlativeFact' in schema 'dbo'
+-- Create a new table called 'FactAccStockItemTran' in schema 'dbo'
 -- Drop the table if it already exists
-IF OBJECT_ID('dbo.StockItemTranAccumlativeFact', 'U') IS NOT NULL
-DROP TABLE dbo.StockItemTranAccumlativeFact
+IF OBJECT_ID('dbo.FactAccStockItemTran', 'U') IS NOT NULL
+DROP TABLE dbo.FactAccStockItemTran
 GO
 -- Create the table in the specified schema
-CREATE TABLE dbo.StockItemTranAccumlativeFact
+CREATE TABLE dbo.FactAccStockItemTran
 (
 
     --? Surrogate Key --> be ezaye har stock item har rooz 1 record
@@ -135,6 +139,7 @@ CREATE TABLE dbo.StockItemTranAccumlativeFact
     TotalMovementQuantity [NUMERIC](20 , 3) NOT NULL,
     TotalEntryMovementQuantity [NUMERIC](20 , 3) NOT NULL,
     TotalWriteOffMovementQuantity [NUMERIC](20 , 3) NOT NULL,
+    
     TotalDaysOffCount INT NOT NULL,
 );
 GO
