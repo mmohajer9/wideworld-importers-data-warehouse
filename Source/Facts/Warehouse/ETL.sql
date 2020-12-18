@@ -62,8 +62,6 @@ BEGIN
             ISNULL(b.UnitPackageTypeID , -1) as UnitPackageTypeID,
             ISNULL(b.OuterPackageTypeID , -1) as OuterPackageTypeID,
             ISNULL(b.ColorID , -1) as ColorID,
-            -- NULL,
-            -- NULL,
             ISNULL(CustomerKey , -1) as CustomerKey,
             ISNULL(a.CustomerID , -1) as CustomerID,
             ISNULL(InvoiceID , -1) as InvoiceID,
