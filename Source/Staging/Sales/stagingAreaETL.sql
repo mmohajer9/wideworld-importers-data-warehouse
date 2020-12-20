@@ -1,7 +1,3 @@
-use WideWorldImporters
-
-
-
 --*****************************start Staging People******************************
 GO
 CREATE or alter PROCEDURE FillStagingPeople AS

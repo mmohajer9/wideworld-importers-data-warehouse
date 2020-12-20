@@ -24,14 +24,7 @@ CREATE TABLE DimSuplier(
 	PostalPostalCode nvarchar(10) NOT NULL,	
 );
 ---------------------------------------------------
-CREATE TABLE DimOrderline(
-	PurchaseOrderLineID int NOT NULL PRIMARY KEY,
-	PurchaseOrderID int NOT NULL,
-	StockItemID int NOT NULL,
-	PackageTypeID int NOT NULL,
-	Description nvarchar(100) NOT NULL,
-	LastReceiptDate date,
-);
+
 ----------------------------------------------------
 create table DimPeople(
 	PeopleKey int primary key,
@@ -46,4 +39,15 @@ create table DimPeople(
 	CurrentEmailAddress nvarchar(300),--scd type three
 	PreviousEmailAddress nvarchar(300),
 	EmailEffectiveDate date
+);
+--------------------------------------------------------
+CREATE TABLE DimTransactionTypes
+(
+    TransactionTypeID INT NOT NULL PRIMARY KEY,
+    TransactionTypeName [NVARCHAR](100) NOT NULL
+);
+---------------------------------------------------------
+CREATE TABLE DimPayment (
+	PaymentID int PRIMARY KEY,
+	PaymentMethodName nvarchar(100)
 )

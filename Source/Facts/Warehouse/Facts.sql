@@ -77,19 +77,8 @@ CREATE TABLE dbo.FactDailyStockItemTran
     ColorID INT FOREIGN KEY 
     REFERENCES DimColors(ColorID),
 
-    CustomerKey INT FOREIGN KEY 
-    REFERENCES DimCustomer(CustomerKey),
-
-    CustomerID INT,
-
-    InvoiceKey INT FOREIGN KEY 
-    REFERENCES DimInvoice(InvoiceKey),
-
     SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
-
-    PurchaseOrderID INT FOREIGN KEY 
-    REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
@@ -140,19 +129,8 @@ CREATE TABLE dbo.FactAccStockItemTran
     ColorID INT FOREIGN KEY 
     REFERENCES DimColors(ColorID),
 
-    CustomerKey INT FOREIGN KEY 
-    REFERENCES DimCustomer(CustomerKey),
-
-    CustomerID INT,
-
-    InvoiceKey INT FOREIGN KEY 
-    REFERENCES DimInvoice(InvoiceKey),
-
     SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
-
-    PurchaseOrderID INT FOREIGN KEY 
-    REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
     TransactionTypeID INT NOT NULL FOREIGN KEY 
     REFERENCES DimTransactionTypes(TransactionTypeID),
@@ -166,3 +144,6 @@ CREATE TABLE dbo.FactAccStockItemTran
     TotalDaysOffCount INT NOT NULL,
 );
 GO
+
+
+CREATE INDEX FactStockItemTranIndex ON FactStockItemTran(StockItemID , TransactionDate,CustomerKey,InvoiceKey,TransactionTypeID)

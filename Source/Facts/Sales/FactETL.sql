@@ -1,5 +1,3 @@
-use WideWorldImporters
-
 
 Go
 create or alter procedure FillFactTransaction (@date date) AS
