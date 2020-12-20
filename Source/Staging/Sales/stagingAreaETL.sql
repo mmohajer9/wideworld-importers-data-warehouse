@@ -248,3 +248,27 @@ begin
 end
 GO
 --***************************** end Staging Customer Transactions**********************************************
+
+
+
+CREATE OR ALTER PROCEDURE FILL_SALES_STAGING_AREA
+AS
+BEGIN
+
+	EXECUTE FillStagingPeople;
+	EXECUTE FillStagingPaymentMethods;
+	EXECUTE FillStagingDeliveryMethods;
+	EXECUTE FillStagingCities;
+	EXECUTE FillStagingStateProvinces;
+	EXECUTE FillStagingBuyingGroups;
+	EXECUTE FillStagingCustomerCategories;
+	EXECUTE FillStagingCustomers;
+	EXECUTE FillStagingInvoiceLines;
+	EXECUTE FillStagingInvoices;
+	EXECUTE FillStagingOrderLines;
+	EXECUTE FillStagingOrders;
+	EXECUTE FillStagingCustomerTransactions;
+
+END
+--------------------------------------------------------------------------------------------------------------
+GO
