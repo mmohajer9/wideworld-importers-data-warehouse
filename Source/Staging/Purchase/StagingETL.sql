@@ -219,8 +219,16 @@ GO
 
 
 CREATE OR ALTER PROCEDURE FILL_PURCHASING_STAGING_AREA
+    @FirstLoad BIT = 0
 AS
 BEGIN
+    IF @FirstLoad = 1
+    BEGIN
+        TRUNCATE TABLE StagingPurchaseOrder
+        TRUNCATE TABLE StagingSupplierCategories
+        TRUNCATE TABLE StagingSupplier
+        TRUNCATE TABLE StagingSupplierTransactions
+    END
 
     EXEC FillStagingPurchaseOrder;
     EXEC FillStagingSupplierCategories;

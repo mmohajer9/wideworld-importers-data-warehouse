@@ -252,8 +252,25 @@ GO
 
 
 CREATE OR ALTER PROCEDURE FILL_SALES_STAGING_AREA
+	@FirstLoad BIT = 0
 AS
 BEGIN
+    IF @FirstLoad = 1
+    BEGIN
+		TRUNCATE TABLE StagingPeople;
+		TRUNCATE TABLE StagingPaymentMethods;
+		TRUNCATE TABLE StagingDeliveryMethods;
+		TRUNCATE TABLE StagingCities;
+		TRUNCATE TABLE StagingStateProvinces;
+		TRUNCATE TABLE StagingBuyingGroups;
+		TRUNCATE TABLE StagingCustomerCategories;
+		TRUNCATE TABLE StagingCustomers;
+		TRUNCATE TABLE StagingInvoiceLines;
+		TRUNCATE TABLE StagingInvoices;
+		TRUNCATE TABLE StagingOrderLines;
+		TRUNCATE TABLE StagingOrders;
+		TRUNCATE TABLE StagingCustomerTransactions;		
+	END
 
 	EXECUTE FillStagingPeople;
 	EXECUTE FillStagingPaymentMethods;

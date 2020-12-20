@@ -359,9 +359,21 @@ GO
 
 
 CREATE OR ALTER PROCEDURE FILL_WAREHOUSE_STAGING_AREA
+    @FirstLoad BIT = 0
 AS
 BEGIN
-
+    IF @FirstLoad = 1
+    BEGIN
+        TRUNCATE TABLE StagingStockItems;
+        TRUNCATE TABLE StagingStockItemHoldings;
+        TRUNCATE TABLE StagingStockGroups;
+        TRUNCATE TABLE StagingStockItemStockGroups;
+        TRUNCATE TABLE StagingPackageTypes;
+        TRUNCATE TABLE StagingColors;
+        TRUNCATE TABLE StagingTransactionTypes;
+        TRUNCATE TABLE StagingStockItemTransactions;
+    END
+    
     EXECUTE FillStagingStockItems;
     EXECUTE FillStagingStockItemHoldings;
     EXECUTE FillStagingStockGroups;
@@ -373,11 +385,6 @@ BEGIN
 
 END
 --------------------------------------------------------------------------------------------------------------
-GO
-
-
-exec FILL_STAGING_AREA;
-
 GO
 
 

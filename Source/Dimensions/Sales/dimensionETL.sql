@@ -245,3 +245,18 @@ END
 Go
 --***************************************************************** END PEOPLE DIMENTION AREA*************************
 
+CREATE OR ALTER PROCEDURE SALES_DIMENSIONS_SCD_ETL
+AS
+BEGIN
+
+    EXECUTE FillDimOrder;
+    EXECUTE FillDimCustomer;
+    EXECUTE FillDimInvoice;
+    EXECUTE FillDimPayment;
+    EXECUTE FillDimPeople;
+
+
+
+END
+--------------------------------------------------------------------------------------------------------------
+GO
