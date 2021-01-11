@@ -1,3 +1,7 @@
+use [WWI-Staging];
+GO
+
+
 -- Create a new table called 'StagingStockItems' in schema 'dbo'
 -- Drop the table if it already exists
 IF OBJECT_ID('dbo.StagingStockItems', 'U') IS NOT NULL

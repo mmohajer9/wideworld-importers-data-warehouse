@@ -1,3 +1,6 @@
+use [WWI-Staging];
+GO
+
 CREATE OR ALTER PROCEDURE FillStagingPurchaseOrder
 AS
 BEGIN

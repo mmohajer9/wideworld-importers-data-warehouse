@@ -1,3 +1,7 @@
+use [WWI-Staging];
+GO
+
+
 CREATE OR ALTER PROCEDURE FillStagingStockItems
 AS
 BEGIN

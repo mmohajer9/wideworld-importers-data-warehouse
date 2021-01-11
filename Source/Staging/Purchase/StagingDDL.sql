@@ -1,3 +1,6 @@
+use [WWI-Staging];
+GO
+
 IF OBJECT_ID('dbo.StagingPurchaseOrder', 'U') IS NOT NULL
     DROP TABLE StagingPurchaseOrder
 CREATE TABLE StagingPurchaseOrder

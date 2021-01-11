@@ -1,3 +1,6 @@
+use [WWI-Staging];
+GO
+
 IF OBJECT_ID('dbo.StagingLog', 'U') IS NOT NULL
 DROP TABLE dbo.StagingLog
 GO

@@ -60,9 +60,6 @@ GO
 CREATE TABLE dbo.FactDailyStockItemTran
 (
 
-    --? Surrogate Key --> be ezaye har stock item har rooz 1 record
-    TranDailyFactID INT IDENTITY(1,1) PRIMARY KEY,
-
     --^ FOREIGN KEYS
 
     StockItemID INT NOT NULL FOREIGN KEY 
@@ -79,9 +76,6 @@ CREATE TABLE dbo.FactDailyStockItemTran
 
     SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
-
-    TransactionTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimTransactionTypes(TransactionTypeID),
 
     EffectiveDate INT NOT NULL FOREIGN KEY 
     REFERENCES DimTime(TimeKey),
@@ -112,8 +106,6 @@ GO
 CREATE TABLE dbo.FactAccStockItemTran
 (
 
-    --? Surrogate Key --> be ezaye har stock item har rooz 1 record
-    TranDailyFactID INT IDENTITY(1,1) PRIMARY KEY,
 
     --^ FOREIGN KEYS
 
@@ -132,8 +124,6 @@ CREATE TABLE dbo.FactAccStockItemTran
     SupplierID INT FOREIGN KEY 
     REFERENCES DimSuplier(SupplierID),
 
-    TransactionTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimTransactionTypes(TransactionTypeID),
 
     --^ MEASURES --> Acc Fact
 
