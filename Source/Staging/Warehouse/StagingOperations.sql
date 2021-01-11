@@ -32,7 +32,9 @@ BEGIN
         [OuterPackageID],
         [Brand],
         [Size],
-        [IsChillerStock],
+        CASE IsChillerStock
+		    WHEN 1 then 'Yes' else 'No' 
+	    END,
         [Barcode],
         [TaxRate],
         [UnitPrice],

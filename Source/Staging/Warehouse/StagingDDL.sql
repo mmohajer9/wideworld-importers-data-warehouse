@@ -10,24 +10,24 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingStockItems
 (
-    [StockItemID] [int] NOT NULL,
-    [StockItemName] [nvarchar](100) NOT NULL,
-    [SupplierID] [int] NOT NULL,
-    [ColorID] [int] NULL,
-    [UnitPackageID] [int] NOT NULL,
-    [OuterPackageID] [int] NOT NULL,
-    [Brand] [nvarchar](50) NULL,
-    [Size] [nvarchar](20) NULL,
+    [StockItemID] [int],
+    [StockItemName] [nvarchar](100),
+    [SupplierID] [int],
+    [ColorID] [int] ,
+    [UnitPackageID] [int],
+    [OuterPackageID] [int],
+    [Brand] [nvarchar](50) ,
+    [Size] [nvarchar](20) ,
 
-    -- [LeadTimeDays] [int] NOT NULL,
-    -- [QuantityPerOuter] [int] NOT NULL,
+    -- [LeadTimeDays] [int],
+    -- [QuantityPerOuter] [int],
 
-    [IsChillerStock] [bit] NOT NULL,
-    [Barcode] [nvarchar](50) NULL,
-    [TaxRate] [decimal](18, 3) NOT NULL,
-    [UnitPrice] [decimal](18, 2) NOT NULL,
-    [RecommendedRetailPrice] [decimal](18, 2) NULL,
-    [TypicalWeightPerUnit] [decimal](18, 3) NOT NULL,
+    [IsChillerStock] [nvarchar](20), --^ prev type : bit field
+    [Barcode] [nvarchar](50) ,
+    [TaxRate] [decimal](18, 3),
+    [UnitPrice] [decimal](18, 2),
+    [RecommendedRetailPrice] [decimal](18, 2) ,
+    [TypicalWeightPerUnit] [decimal](18, 3),
 );
 GO
 
@@ -40,13 +40,13 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingStockItemHoldings
 (
-    [StockItemID] [int] NOT NULL,
-    [QuantityOnHand] [int] NOT NULL,
-    [BinLocation] [nvarchar](20) NOT NULL,
-    [LastStocktakeQuantity] [int] NOT NULL,
-    [LastCostPrice] [decimal](18, 2) NOT NULL,
-    [ReorderLevel] [int] NOT NULL,
-    [TargetStockLevel] [int] NOT NULL,
+    [StockItemID] [int],
+    [QuantityOnHand] [int],
+    [BinLocation] [nvarchar](20),
+    [LastStocktakeQuantity] [int],
+    [LastCostPrice] [decimal](18, 2),
+    [ReorderLevel] [int],
+    [TargetStockLevel] [int],
 );
 GO
 
@@ -60,8 +60,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingStockGroups
 (
-    [StockGroupID] [int] NOT NULL,
-    [StockGroupName] [nvarchar](50) NOT NULL,
+    [StockGroupID] [int],
+    [StockGroupName] [nvarchar](50),
 );
 GO
 
@@ -74,9 +74,9 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingStockItemStockGroups
 (
-    [StockItemStockGroupID] [int] NOT NULL,
-    [StockItemID] [int] NOT NULL,
-    [StockGroupID] [int] NOT NULL,
+    [StockItemStockGroupID] [int],
+    [StockItemID] [int],
+    [StockGroupID] [int],
 );
 GO
 
@@ -90,8 +90,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingPackageTypes
 (
-    [PackageTypeID] [int] NOT NULL,
-    [PackageTypeName] [nvarchar](50) NOT NULL,
+    [PackageTypeID] [int],
+    [PackageTypeName] [nvarchar](50),
 );
 GO
 
@@ -104,8 +104,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingColors
 (
-    [ColorID] [int] NOT NULL,
-    [ColorName] [nvarchar](20) NOT NULL,
+    [ColorID] [int],
+    [ColorName] [nvarchar](20),
 );
 GO
 
@@ -118,8 +118,8 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.StagingTransactionTypes
 (
-	[TransactionTypeID] [int] NOT NULL,
-	[TransactionTypeName] [nvarchar](50) NOT NULL,
+	[TransactionTypeID] [int],
+	[TransactionTypeName] [nvarchar](50),
 );
 GO
 
@@ -136,14 +136,14 @@ CREATE TABLE dbo.StagingStockItemTransactions
 
     --^ FIXME: NOTE THIS TABLE --> INCREMENTAL APPROACH
 
-	[StockItemTransactionID] [int] NOT NULL,
-	[StockItemID] [int] NOT NULL,
-	[TransactionTypeID] [int] NOT NULL,
-	[CustomerID] [int] NULL,
-	[InvoiceID] [int] NULL,
-	[SupplierID] [int] NULL,
-	[PurchaseOrderID] [int] NULL,
-	[TransactionOccurredWhen] [DATE] NOT NULL,
-	[Quantity] [decimal](18, 3) NOT NULL,
+	[StockItemTransactionID] [int],
+	[StockItemID] [int],
+	[TransactionTypeID] [int],
+	[CustomerID] [int] ,
+	[InvoiceID] [int] ,
+	[SupplierID] [int] ,
+	[PurchaseOrderID] [int] ,
+	[TransactionOccurredWhen] [DATE],
+	[Quantity] [decimal](18, 3),
 );
 GO
