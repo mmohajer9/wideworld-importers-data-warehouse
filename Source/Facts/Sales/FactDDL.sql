@@ -1,3 +1,6 @@
+use [WWI-DW];
+GO
+
 
 ;----------------TransAction Fact table---------------------------
 IF OBJECT_ID('dbo.FactTransaction', 'U') IS NOT NULL

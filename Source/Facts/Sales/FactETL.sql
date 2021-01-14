@@ -1,3 +1,6 @@
+use [WWI-DW];
+GO
+
 
 Go
 create or alter procedure FillFactTransaction (@date date) AS

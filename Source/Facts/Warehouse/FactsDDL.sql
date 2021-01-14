@@ -1,3 +1,7 @@
+use [WWI-DW];
+GO
+
+
 -- Create a new table called 'FactStockItemTran' in schema 'dbo'
 -- Drop the table if it already exists
 IF OBJECT_ID('dbo.FactStockItemTran', 'U') IS NOT NULL
@@ -6,46 +10,56 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.FactStockItemTran
 (
-    StockItemTransactionID INT NOT NULL PRIMARY KEY,
+    StockItemTransactionID INT PRIMARY KEY,
     -- primary key column
 
     --^ FOREIGN KEYS
 
-    StockItemID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimStockItems(StockItemID),
+    StockItemID INT NOT NULL, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    UnitPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    OuterPackageTypeID INT FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    OuterPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT FOREIGN KEY 
-    REFERENCES DimColors(ColorID),
+    ColorID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimColors(ColorID),
 
-    CustomerKey INT FOREIGN KEY 
-    REFERENCES DimCustomer(CustomerKey),
+    CustomerKey INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimCustomer(CustomerKey),
 
     CustomerID INT,
 
-    InvoiceKey INT FOREIGN KEY 
-    REFERENCES DimInvoice(InvoiceKey),
+    InvoiceKey INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimInvoice(InvoiceKey),
 
-    SupplierID INT FOREIGN KEY 
-    REFERENCES DimSuplier(SupplierID),
+    SupplierID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimSuplier(SupplierID),
 
-    PurchaseOrderID INT FOREIGN KEY 
-    REFERENCES DimPurchaseOrder(PurchaseOrderID),
+    PurchaseOrderID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPurchaseOrder(PurchaseOrderID),
 
-    TransactionTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimTransactionTypes(TransactionTypeID),
+    TransactionTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimTransactionTypes(TransactionTypeID),
 
-    TransactionDate INT NOT NULL FOREIGN KEY 
-    REFERENCES DimTime(TimeKey),
+    TransactionDate INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimTime(TimeKey),
 
     --^ MEASURES --> transactional
 
-    MovementQuantity [NUMERIC](20 , 3) NOT NULL,
+    MovementQuantity [NUMERIC](20 , 3),
 );
 GO
 
@@ -62,34 +76,40 @@ CREATE TABLE dbo.FactDailyStockItemTran
 
     --^ FOREIGN KEYS
 
-    StockItemID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimStockItems(StockItemID),
+    StockItemID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    UnitPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    OuterPackageTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    OuterPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT FOREIGN KEY 
-    REFERENCES DimColors(ColorID),
+    ColorID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimColors(ColorID),
 
-    SupplierID INT FOREIGN KEY 
-    REFERENCES DimSuplier(SupplierID),
+    SupplierID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimSuplier(SupplierID),
 
-    EffectiveDate INT NOT NULL FOREIGN KEY 
-    REFERENCES DimTime(TimeKey),
+    EffectiveDate INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimTime(TimeKey),
 
     --^ MEASURES --> Daily Fact
 
-    TotalMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
-    TotalEntryMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
-    TotalWriteOffMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
+    TotalMovementQuantityInDay [NUMERIC](20 , 3),
+    TotalEntryMovementQuantityInDay [NUMERIC](20 , 3),
+    TotalWriteOffMovementQuantityInDay [NUMERIC](20 , 3),
 
-    TotalDaysOffCountTillToday INT NOT NULL,
+    TotalDaysOffCountTillToday INT,
 
-    MaximumMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
-    MinimumMovementQuantityInDay [NUMERIC](20 , 3) NOT NULL,
+    MaximumMovementQuantityInDay [NUMERIC](20 , 3),
+    MinimumMovementQuantityInDay [NUMERIC](20 , 3),
     
 
 );
@@ -109,29 +129,34 @@ CREATE TABLE dbo.FactAccStockItemTran
 
     --^ FOREIGN KEYS
 
-    StockItemID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimStockItems(StockItemID),
+    StockItemID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    UnitPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    OuterPackageTypeID INT NOT NULL FOREIGN KEY 
-    REFERENCES DimPackageTypes(PackageTypeID),
+    OuterPackageTypeID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimPackageTypes(PackageTypeID),
 
-    ColorID INT FOREIGN KEY 
-    REFERENCES DimColors(ColorID),
+    ColorID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimColors(ColorID),
 
-    SupplierID INT FOREIGN KEY 
-    REFERENCES DimSuplier(SupplierID),
+    SupplierID INT, 
+    -- FOREIGN KEY 
+    -- REFERENCES DimSuplier(SupplierID),
 
 
     --^ MEASURES --> Acc Fact
 
-    TotalMovementQuantity [NUMERIC](20 , 3) NOT NULL,
-    TotalEntryMovementQuantity [NUMERIC](20 , 3) NOT NULL,
-    TotalWriteOffMovementQuantity [NUMERIC](20 , 3) NOT NULL,
+    TotalMovementQuantity [NUMERIC](20 , 3),
+    TotalEntryMovementQuantity [NUMERIC](20 , 3),
+    TotalWriteOffMovementQuantity [NUMERIC](20 , 3),
     
-    TotalDaysOffCount INT NOT NULL,
+    TotalDaysOffCount INT,
 );
 GO
 

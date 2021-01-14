@@ -1,15 +1,19 @@
+use [WWI-DW];
+GO
+
+
 IF OBJECT_ID('dbo.FactLog', 'U') IS NOT NULL
 DROP TABLE dbo.FactLog
 GO
 
 CREATE TABLE FactLog
 (
-    [FactLogID] INT IDENTITY(1 , 1) NOT NULL PRIMARY KEY,
-    [ProcedureName] NVARCHAR(500) NOT NULL,
-    [Action] NVARCHAR(500) NOT NULL,
-    [FactName] NVARCHAR(500) NOT NULL,
-    [Datetime] DATETIME2(7) NOT NULL,
-    [AffectedRowsNumber] INT NOT NULL
+    [FactLogID] INT IDENTITY(1 , 1) PRIMARY KEY,
+    [ProcedureName] NVARCHAR(500),
+    [Action] NVARCHAR(500),
+    [FactName] NVARCHAR(500),
+    [Datetime] DATETIME2(7),
+    [AffectedRowsNumber] INT
 );
 GO
 
