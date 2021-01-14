@@ -15,7 +15,7 @@ CREATE TABLE dbo.FactStockItemTran
 
     --^ FOREIGN KEYS
 
-    StockItemID INT NOT NULL, 
+    StockItemID INT, 
     -- FOREIGN KEY 
     -- REFERENCES DimStockItems(StockItemID),
 
