@@ -3,7 +3,7 @@
 ## Project Overview
 
 1. **Final Staging Area + ETL**
-    - [ ] Warehouse
+    - [x] Warehouse
     - [ ] Sales
     - [ ] Purchase
 2. **Final Design of Data Warehouse**
