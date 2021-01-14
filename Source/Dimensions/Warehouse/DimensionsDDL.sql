@@ -7,8 +7,8 @@ GO
 CREATE TABLE dbo.DimStockGroup
 (
     -- primary key column
-    StockGroupID INT NOT NULL PRIMARY KEY,
-    StockGroupName [NVARCHAR](100) NOT NULL
+    StockGroupID INT PRIMARY KEY,
+    StockGroupName [NVARCHAR](100)
     -- specify more columns here
 );
 GO
@@ -23,8 +23,8 @@ GO
 CREATE TABLE dbo.DimPackageTypes
 (
     -- primary key column
-    PackageTypeID INT NOT NULL PRIMARY KEY,
-    PackageTypeName [NVARCHAR](100) NOT NULL
+    PackageTypeID INT PRIMARY KEY,
+    PackageTypeName [NVARCHAR](100)
     -- specify more columns here
 );
 GO
@@ -40,8 +40,8 @@ GO
 CREATE TABLE dbo.DimTransactionTypes
 (
     -- primary key column
-    TransactionTypeID INT NOT NULL PRIMARY KEY,
-    TransactionTypeName [NVARCHAR](100) NOT NULL
+    TransactionTypeID INT PRIMARY KEY,
+    TransactionTypeName [NVARCHAR](100)
     -- specify more columns here
 );
 GO
@@ -56,8 +56,8 @@ GO
 CREATE TABLE dbo.DimColors
 (
     -- primary key column
-    ColorID INT NOT NULL PRIMARY KEY,
-    ColorName [NVARCHAR](100) NOT NULL
+    ColorID INT PRIMARY KEY,
+    ColorName [NVARCHAR](100)
     -- specify more columns here
 );
 GO
@@ -71,45 +71,45 @@ GO
 CREATE TABLE dbo.DimStockItems
 (
     -- primary key column
-    StockItemID INT NOT NULL PRIMARY KEY,
-    StockItemName [NVARCHAR](200) NOT NULL,
+    StockItemID INT PRIMARY KEY,
+    StockItemName [NVARCHAR](200),
 
     --^ columns from stockitems
-    [SupplierID] [int] NOT NULL,
+    [SupplierID] [int],
     
     Brand [NVARCHAR](100),
     Size [NVARCHAR](50),
-    IsChillerStock BIT NOT NULL,
+    IsChillerStock BIT,
     Barcode [NVARCHAR](100),
 
     ColorID INT,
     ColorName [NVARCHAR](100) ,
 
-    UnitPackageTypeID INT NOT NULL,
-    UnitPackageTypeName [NVARCHAR](100) NOT NULL,
+    UnitPackageTypeID INT,
+    UnitPackageTypeName [NVARCHAR](100),
 
-    OuterPackageTypeID INT NOT NULL,
-    OuterPackageTypeName [NVARCHAR](100) NOT NULL,
+    OuterPackageTypeID INT,
+    OuterPackageTypeName [NVARCHAR](100),
     --* some numeric columns
 
-    TaxRate [NUMERIC](20 , 3) NOT NULL,
-    UnitPrice [NUMERIC](20 , 3) NOT NULL,
+    TaxRate [NUMERIC](20 , 3),
+    UnitPrice [NUMERIC](20 , 3),
     RecommendedRetailPrice [NUMERIC](20 , 3),
-    TypicalWeightPerUnit [NUMERIC](20 , 3) NOT NULL,
+    TypicalWeightPerUnit [NUMERIC](20 , 3),
 
     --^ columns from stockitemholdings
 
-    LastCostPrice [NUMERIC](20 , 3) NOT NULL,
-    QuantityOnHand INT NOT NULL,
-    LastStocktakeQuantity INT NOT NULL,
+    LastCostPrice [NUMERIC](20 , 3),
+    QuantityOnHand INT,
+    LastStocktakeQuantity INT,
 
-    TargetStockLevel INT NOT NULL,
-    ReorderLevel INT NOT NULL,
+    TargetStockLevel INT,
+    ReorderLevel INT,
 
     --& SCD Type 3
-    OriginalBinLocation [NVARCHAR](40) NOT NULL,
-    CurrentBinLocation [NVARCHAR](40) NOT NULL,
-    EffectiveDate [DATE] NOT NULL,
+    OriginalBinLocation [NVARCHAR](40),
+    CurrentBinLocation [NVARCHAR](40),
+    EffectiveDate [DATE],
     --& SCD Type 3
 
 );
