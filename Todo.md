@@ -3,7 +3,7 @@
 ## Mohammad Mahdi Mohajer
 
 1. **Edits and Modifications**
-   - [ ] Remove Foreign Keys - NOT NULL - etc
+   - [x] Remove Foreign Keys - NOT NULL - etc
    - [ ] tmp in incremental approach should be moved inside the while
    - [ ] Bit fields should be nvarchar with value 'Yes' or 'No'
    - [ ] Bit field and id field should have description or name field beside
