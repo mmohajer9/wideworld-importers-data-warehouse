@@ -2,9 +2,13 @@
 
 ## Mohammad Mahdi Mohajer
 
+### Warehouse Mart
+
 1. **Edits and Modifications**
    - [x] Remove Foreign Keys - NOT NULL - etc
-   - [ ] tmp in incremental approach should be moved inside the while
+   - tmp in incremental approach should be moved inside the while
+     - [x] Staging Area
+     - [ ] Facts
    - [ ] Bit fields should be nvarchar with value 'Yes' or 'No'
    - [ ] Bit field and id field should have description or name field beside
    - [ ] Stage area should be seperated from the main datawarehouse and source
