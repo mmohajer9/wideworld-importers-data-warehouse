@@ -43,7 +43,7 @@ BEGIN
     FROM [WideWorldImporters].[Warehouse].[StockItems]
 
     -------------------------------------------------------
-    
+
     DECLARE @AFFECTED_ROWS INT;
     SET @AFFECTED_ROWS = @@ROWCOUNT;
 
@@ -108,7 +108,7 @@ BEGIN
 
 
     -------------------------------------------------------
-    
+
     DECLARE @AFFECTED_ROWS INT;
     SET @AFFECTED_ROWS = @@ROWCOUNT;
 
@@ -144,7 +144,7 @@ BEGIN
     FROM [WideWorldImporters].[Warehouse].[StockItemStockGroups]
 
     -------------------------------------------------------
-    
+
     DECLARE @AFFECTED_ROWS INT;
     SET @AFFECTED_ROWS = @@ROWCOUNT;
 
@@ -267,32 +267,39 @@ BEGIN
 
     CREATE TABLE temp_staging_stock_items_till_today
     (
-        [StockItemTransactionID] [int] NOT NULL,
-        [StockItemID] [int] NOT NULL,
-        [TransactionTypeID] [int] NOT NULL,
+        [StockItemTransactionID] [int],
+        [StockItemID] [int],
+        [TransactionTypeID] [int],
         [CustomerID] [int] NULL,
         [InvoiceID] [int] NULL,
         [SupplierID] [int] NULL,
         [PurchaseOrderID] [int] NULL,
-        [TransactionOccurredWhen] [datetime2](7) NOT NULL,
-        [Quantity] [decimal](18, 3) NOT NULL,
+        [TransactionOccurredWhen] [datetime2](7),
+        [Quantity] [decimal](18, 3),
     );
 
+    --^ declarations for logs
+    DECLARE @AFFECTED_ROWS INT;
+    DECLARE @CURRENT_DATETIME DATETIME2;
 
     --^ date of the last transaction in the "source table"
     declare @today DATETIME2 = (
-        select ISNULL(MAX([TransactionOccurredWhen]) , @to_date) 
-        from [WideWorldImporters].[Warehouse].[StockItemTransactions]
+        select ISNULL(MAX([TransactionOccurredWhen]) , @to_date)
+    from [WideWorldImporters].[Warehouse].[StockItemTransactions]
     )
-    
+
     --^ date of the last transaction in the "staging area"
     DECLARE @last_added DATETIME2 = (
         SELECT ISNULL(MAX([TransactionOccurredWhen]) , @from_date)
-        FROM [WWI-DW].[dbo].[StagingStockItemTransactions]
+    FROM [WWI-Staging].[dbo].[StagingStockItemTransactions]
     )
 
     while(@last_added < @today)
     BEGIN
+
+        --? truncate temp table
+        TRUNCATE TABLE temp_staging_stock_items_till_today;
+
         --? first we should go to the next day
         SET @last_added = DATEADD(dd, 1, @last_added)
 
@@ -321,43 +328,47 @@ BEGIN
             [Quantity]
         FROM [WideWorldImporters].[Warehouse].[StockItemTransactions]
         WHERE (TransactionOccurredWhen >= @last_added AND TransactionOccurredWhen < DATEADD(dd, 1, @last_added))
+
+
+        INSERT INTO StagingStockItemTransactions
+            (
+            [StockItemTransactionID],
+            [StockItemID],
+            [TransactionTypeID],
+            [CustomerID],
+            [InvoiceID],
+            [SupplierID],
+            [PurchaseOrderID],
+            [TransactionOccurredWhen],
+            [Quantity]
+            )
+        SELECT
+            [StockItemTransactionID],
+            [StockItemID],
+            [TransactionTypeID],
+            [CustomerID],
+            [InvoiceID],
+            [SupplierID],
+            [PurchaseOrderID],
+            [TransactionOccurredWhen],
+            [Quantity]
+        FROM temp_staging_stock_items_till_today
+
+
+        SET @AFFECTED_ROWS = @@ROWCOUNT;
+
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
+
+        exec [AddStagingLog] 
+            @procedure_name = 'FillStagingStockItemTransactions',
+            @action = 'INSERT',
+            @TargetTable = 'StagingStockItemTransactions',
+            @Datetime = @CURRENT_DATETIME,
+            @AffectedRowsNumber = @AFFECTED_ROWS
+
     END
 
-    INSERT INTO StagingStockItemTransactions
-        (
-        [StockItemTransactionID],
-        [StockItemID],
-        [TransactionTypeID],
-        [CustomerID],
-        [InvoiceID],
-        [SupplierID],
-        [PurchaseOrderID],
-        [TransactionOccurredWhen],
-        [Quantity]
-        )
-    SELECT
-        [StockItemTransactionID],
-        [StockItemID],
-        [TransactionTypeID],
-        [CustomerID],
-        [InvoiceID],
-        [SupplierID],
-        [PurchaseOrderID],
-        [TransactionOccurredWhen],
-        [Quantity]
-    FROM temp_staging_stock_items_till_today
 
-    DECLARE @AFFECTED_ROWS INT;
-    SET @AFFECTED_ROWS = @@ROWCOUNT;
-
-    DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
-
-    exec [AddStagingLog] 
-    @procedure_name = 'FillStagingStockItemTransactions',
-    @action = 'INSERT',
-    @TargetTable = 'StagingStockItemTransactions',
-    @Datetime = @CURRENT_DATETIME,
-    @AffectedRowsNumber = @AFFECTED_ROWS
 
 END
 --------------------------------------------------------------------------------------------------------------
@@ -379,7 +390,7 @@ BEGIN
         TRUNCATE TABLE StagingTransactionTypes;
         TRUNCATE TABLE StagingStockItemTransactions;
     END
-    
+
     EXECUTE FillStagingStockItems;
     EXECUTE FillStagingStockItemHoldings;
     EXECUTE FillStagingStockGroups;
