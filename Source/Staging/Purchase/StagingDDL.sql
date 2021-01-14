@@ -2,86 +2,87 @@ use [WWI-Staging];
 GO
 
 IF OBJECT_ID('dbo.StagingPurchaseOrder', 'U') IS NOT NULL
-    DROP TABLE StagingPurchaseOrder
+DROP TABLE StagingPurchaseOrder
 CREATE TABLE StagingPurchaseOrder
 (
-	PurchaseOrderID INT NOT NULL PRIMARY KEY,
-	SupplierID INT NOT NULL,
-	OrderDate DATE NOT NULL,
-	DeliveryMethodID INT NOT NULL,
-	ContactPersonID INT NOT NULL,
-	ExpectedDeliveryDate DATE NULL,
-	SupplierReference NVARCHAR(50) NULL,
-	IsOrderFinalized NVARCHAR(10) NOT NULL,
+	PurchaseOrderID INT PRIMARY KEY,
+	SupplierID INT,
+	OrderDate DATE,
+	DeliveryMethodID INT,
+	ContactPersonID INT,
+	ExpectedDeliveryDate DATE,
+	SupplierReference NVARCHAR(50),
+	IsOrderFinalized NVARCHAR(10)
+	,
 	--^ bit in original source --> 1 : yes , 0 : no
 );
 GO
 
 IF OBJECT_ID('dbo.StagingSupplierCategories' , 'U') IS NOT NULL
-	DROP TABLE StagingSupplierCategories
+DROP TABLE StagingSupplierCategories
 
 CREATE TABLE StagingSupplierCategories
 (
-	SupplierCategoryID INT NOT NULL,
-	SupplierCategoryName NVARCHAR(100) NOT NULL
+	SupplierCategoryID INT,
+	SupplierCategoryName NVARCHAR(100)
 )
 
 
 IF OBJECT_ID('dbo.StagingSupplier', 'U') IS NOT NULL
-    DROP TABLE StagingSupplier
+DROP TABLE StagingSupplier
 CREATE TABLE StagingSupplier
 (
-	SupplierID INT NOT NULL PRIMARY KEY,
-	SupplierName NVARCHAR(100) NOT NULL,
+	SupplierID INT PRIMARY KEY,
+	SupplierName NVARCHAR(100),
 
-	SupplierCategoryID INT NOT NULL,
-	SupplierCategoryName NVARCHAR(100) NOT NULL,
+	SupplierCategoryID INT,
+	SupplierCategoryName NVARCHAR(100),
 	--^ from Supplier Categories
 
-	PrimaryContactPersonID INT NOT NULL,
-	AlternateContactPersonID INT NOT NULL,
+	PrimaryContactPersonID INT,
+	AlternateContactPersonID INT,
 
 	DeliveryMethodID INT ,
-	DeliveryCityID INT NOT NULL,
-	PostalCityID INT NOT NULL,
+	DeliveryCityID INT,
+	PostalCityID INT,
 	SupplierReference NVARCHAR(50) NULL,
 
-	BankAccountName NVARCHAR(100) NOT NULL,
-	BankAccountBranch NVARCHAR(100) NOT NULL,
-	BankAccountCode NVARCHAR(100) NOT NULL,
-	BankAccountNumber NVARCHAR(100) NOT NULL,
-	BankInternationalCode NVARCHAR(100) NOT NULL,
+	BankAccountName NVARCHAR(100),
+	BankAccountBranch NVARCHAR(100),
+	BankAccountCode NVARCHAR(100),
+	BankAccountNumber NVARCHAR(100),
+	BankInternationalCode NVARCHAR(100),
 
-	PhoneNumber NVARCHAR(20) NOT NULL,
-	FaxNumber NVARCHAR(20) NOT NULL,
-	WebsiteURL NVARCHAR(256) NOT NULL,
+	PhoneNumber NVARCHAR(20),
+	FaxNumber NVARCHAR(20),
+	WebsiteURL NVARCHAR(256),
 
-	DeliveryAddressLine1 NVARCHAR(60) NOT NULL,
-	DeliveryAddressLine2 NVARCHAR(60) NOT NULL,
-	DeliveryPostalCode NVARCHAR(20) NOT NULL,
+	DeliveryAddressLine1 NVARCHAR(60),
+	DeliveryAddressLine2 NVARCHAR(60),
+	DeliveryPostalCode NVARCHAR(20),
 
-	PostalAddressLine1 NVARCHAR(60) NOT NULL,
-	PostalAddressLine2 NVARCHAR(60) NOT NULL,
-	PostalPostalCode NVARCHAR(20) NOT NULL
+	PostalAddressLine1 NVARCHAR(60),
+	PostalAddressLine2 NVARCHAR(60),
+	PostalPostalCode NVARCHAR(20)
 );
 GO
 
 IF OBJECT_ID('dbo.StagingSupplierTransactions', 'U') IS NOT NULL
-    DROP TABLE StagingSupplierTransactions
+DROP TABLE StagingSupplierTransactions
 CREATE TABLE StagingSupplierTransactions
 (
-	[SupplierTransactionID] [int] NOT NULL,
-	[SupplierID] [int] NOT NULL,
-	[TransactionTypeID] [int] NOT NULL,
+	[SupplierTransactionID] [int],
+	[SupplierID] [int],
+	[TransactionTypeID] [int],
 	[PurchaseOrderID] [int] NULL,
 	[PaymentMethodID] [int] NULL,
 	[SupplierInvoiceNumber] [nvarchar](20) NULL,
-	[TransactionDate] [date] NOT NULL,
-	[AmountExcludingTax] [decimal](20, 2) NOT NULL,
-	[TaxAmount] [decimal](20, 2) NOT NULL,
-	[TransactionAmount] [decimal](20, 2) NOT NULL,
-	[OutstandingBalance] [decimal](20, 2) NOT NULL,
+	[TransactionDate] [date],
+	[AmountExcludingTax] [decimal](20, 2),
+	[TaxAmount] [decimal](20, 2),
+	[TransactionAmount] [decimal](20, 2),
+	[OutstandingBalance] [decimal](20, 2),
 	[FinalizationDate] [date] NULL,
-	[IsFinalized] NVARCHAR(10) NOT NULL,
+	[IsFinalized] NVARCHAR(10),
 )
 GO
