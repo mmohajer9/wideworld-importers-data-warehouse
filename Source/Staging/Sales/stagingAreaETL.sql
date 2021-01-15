@@ -165,12 +165,6 @@ GO
 
 
 
-select * from WideWorldImporters.Sales.Invoices
-
-
-
-
-
 
 --***************************** start Staging Orders************************************
 create or alter procedure FillStagingOrders as 
