@@ -166,6 +166,31 @@ GO
 
 
 
+
+--***************************** start Staging InvoiceLine************************************
+create or alter procedure FillStagingOrders as 
+begin
+	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
+	drop table tmp
+	create table tmp(id int)
+		insert into tmp(id) select StagingInvoiceLines.InvoiceLineID from StagingInvoiceLines
+	
+	insert into StagingInvoiceLines(
+		InvoiceLineID,InvoiceID,StockItemID,Description,PackageTypeID,Quantity,UnitPrice,TaxRate,TaxAmount,
+		LineProfit,ExtendedPrice
+	)select InvoiceLineID,InvoiceID,StockItemID,Description,PackageTypeID,Quantity,UnitPrice,TaxRate,TaxAmount,
+		LineProfit,ExtendedPrice from [WideWorldImporters].Sales.InvoiceLines where InvoiceLineID not in (select id from tmp)
+	drop table tmp
+end
+Go
+--***************************** end Staging InvoiceLine***************************************
+
+
+
+
+
+
+
 --***************************** start Staging Orders************************************
 create or alter procedure FillStagingOrders as 
 begin

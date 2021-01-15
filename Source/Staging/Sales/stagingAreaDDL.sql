@@ -234,6 +234,26 @@ go
 
 
 
+--***************************** start Staging InvoiceLines************************************
+IF OBJECT_ID('dbo.StagingInvoiceLines', 'U') IS NOT NULL
+drop table StagingInvoiceLines
+CREATE TABLE StagingInvoiceLines(
+	InvoiceLineID int,
+	InvoiceID int,
+	StockItemID int,
+	Description nvarchar(200),
+	PackageTypeID int,
+	Quantity int,
+	UnitPrice decimal(25, 4) NULL,
+	TaxRate decimal(25, 4),
+	TaxAmount decimal(25, 4),
+	LineProfit decimal(25, 4),
+	ExtendedPrice decimal(25, 4))
+--***************************** start Staging InvoiceLines************************************
+
+
+
+
 
 --***************************** start Staging Customer Transactions************************************
 IF OBJECT_ID('dbo.StagingCustomerTransactions', 'U') IS NOT NULL
