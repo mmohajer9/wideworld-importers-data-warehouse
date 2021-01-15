@@ -1,21 +1,4 @@
-
---***************************************************************** START ORDER DIMENTION AREA*************************
-;----------------order dim table---------------------------
-IF OBJECT_ID('dbo.DimOrder', 'U') IS NOT NULL
-drop table DimOrder
-create table DimOrder(
-	OrderKey int primary key,
-	CustomerID nvarchar(256),
-	CustomerName nvarchar(200),
-	OrderDate date,
-	ExpectedDelivareDate date,
-	PrimaryContactPersonID int,
-	PrimaryContactName nvarchar(100),
-	PrimaryContactPhone nvarchar (25)
-)
-Go
-
---***************************************************************** END ORDER DIMENTION AREA*************************
+use [WWI-DW]
 
 
 
@@ -76,7 +59,11 @@ create table DimInvoice(
 	DeliveryMethodName nvarchar(100),
 	DeliveryAddress nvarchar(max),
 	DeliveryDate datetime null, --scd type one
-	ReceivedBy nvarchar(200) null --scd type one
+	ReceivedBy nvarchar(200) null, --scd type one
+	ExpectedDelivareDate date,
+	PrimaryContactPersonID int,
+	PrimaryContactName nvarchar(100),
+	PrimaryContactPhone nvarchar (25)
 )
 Go
 --***************************************************************** END INVOICE DIMENTION AREA*************************
@@ -110,8 +97,8 @@ create table DimPeople(
 	PeopleKey int primary key,
 	FullName nvarchar(100),
 	PreferredName nvarchar(100),
-	IsEmployee bit,
-	IsSalesPerson bit,
+	IsEmployee nvarchar(5),
+	IsSalesPerson nvarchar(5),
 	CurrentPhoneNumber nvarchar(30),--scd type three
 	PreviousPhoneNumber nvarchar(30),
 	PhoneEffectiveDate date,
