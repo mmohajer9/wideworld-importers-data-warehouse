@@ -4,11 +4,11 @@
 
 1. **Final Staging Area + ETL**
     - [x] Warehouse
-    - [ ] Sales
+    - [x] Sales
     - [ ] Purchase
 2. **Final Design of Data Warehouse**
     - [ ] Warehouse
-    - [ ] Sales
+    - [x] Sales
     - [ ] Purchase
 3. **Final Dimensions + SCD and ETL**
     - [ ] Warehouse
