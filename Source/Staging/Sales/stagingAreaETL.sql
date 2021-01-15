@@ -168,7 +168,7 @@ GO
 
 
 --***************************** start Staging InvoiceLine************************************
-create or alter procedure FillStagingOrders as 
+create or alter procedure FillStagingInvoiceLine as 
 begin
 	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
 	drop table tmp
