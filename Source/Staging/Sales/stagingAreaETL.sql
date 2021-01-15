@@ -1,5 +1,4 @@
-use [WWI-Staging];
-GO
+use [WWI-Staging]
 
 
 --*****************************start Staging People******************************
@@ -8,11 +7,13 @@ CREATE or alter PROCEDURE FillStagingPeople AS
 BEGIN
 	truncate table StagingPeople
 	insert into StagingPeople(
-			PersonID,FullName,PreferredName,IsPermittedToLogon,IsExternalLogonProvider,IsSystemUser,IsEmployee,
+			PersonID,FullName,PreferredName,IsEmployee,
 			IsSalesperson,UserPreferences,PhoneNumber,FaxNumber,EmailAddress,Photo,CustomFields)
 	select 
-			PersonID,FullName,PreferredName,IsPermittedToLogon,IsExternalLogonProvider,IsSystemUser,IsEmployee,
-			IsSalesperson,UserPreferences,PhoneNumber,FaxNumber,EmailAddress,Photo,CustomFields
+			PersonID,FullName,PreferredName,case IsEmployee
+			when 1 then 'Yes' else 'No' end,
+			case IsSalesperson
+			when 1 then 'Yes' else 'No' end,UserPreferences,PhoneNumber,FaxNumber,EmailAddress,Photo,CustomFields
 	from [WideWorldImporters].Application.People
 
 END
@@ -136,26 +137,6 @@ GO
 
 
 
---***************************** start Staging InvoiceLines*******************************
-create or alter procedure FillStagingInvoiceLines as
-begin
-	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
-	drop table tmp
-	create table tmp(id int)
-	insert into tmp (id) select [InvoiceLineID] from StagingInvoiceLines
-	insert into StagingInvoiceLines([InvoiceLineID],[InvoiceID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],
-	[TaxRate],[TaxAmount],[LineProfit],[ExtendedPrice])
-	select [InvoiceLineID],[InvoiceID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],
-	[TaxRate],[TaxAmount],[LineProfit],[ExtendedPrice] from [WideWorldImporters].Sales.InvoiceLines where InvoiceLineID not in (select id from tmp)
-	drop table tmp
-end
-GO
---***************************** end Staging InvoiceLines*******************************
-
-
-
-
-
 
 
 --***************************** start Staging Invoices*******************************
@@ -184,26 +165,6 @@ GO
 
 
 
-
-
-
---***************************** start Staging OrderLines*******************************
-create or alter procedure FillStagingOrderLines as 
-begin
-	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
-	drop table tmp
-	create table tmp(id int)
-	insert into tmp (id) select [OrderLineID] from StagingOrderLines
-
-	insert into StagingOrderLines([OrderLineID],[OrderID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],[TaxRate],
-	[PickedQuantity],[PickingCompletedWhen])
-	select [OrderLineID],[OrderID],[StockItemID],[Description],[PackageTypeID],[Quantity],[UnitPrice],[TaxRate],
-	[PickedQuantity],[PickingCompletedWhen]
-	from [WideWorldImporters].Sales.OrderLines where [OrderLineID] not in (select id from tmp)
-	drop table tmp
-end
-Go
---***************************** end Staging OrderLines**********************************
 
 
 
@@ -252,44 +213,3 @@ begin
 end
 GO
 --***************************** end Staging Customer Transactions**********************************************
-
-
-
-CREATE OR ALTER PROCEDURE FILL_SALES_STAGING_AREA
-	@FirstLoad BIT = 0
-AS
-BEGIN
-    IF @FirstLoad = 1
-    BEGIN
-		TRUNCATE TABLE StagingPeople;
-		TRUNCATE TABLE StagingPaymentMethods;
-		TRUNCATE TABLE StagingDeliveryMethods;
-		TRUNCATE TABLE StagingCities;
-		TRUNCATE TABLE StagingStateProvinces;
-		TRUNCATE TABLE StagingBuyingGroups;
-		TRUNCATE TABLE StagingCustomerCategories;
-		TRUNCATE TABLE StagingCustomers;
-		TRUNCATE TABLE StagingInvoiceLines;
-		TRUNCATE TABLE StagingInvoices;
-		TRUNCATE TABLE StagingOrderLines;
-		TRUNCATE TABLE StagingOrders;
-		TRUNCATE TABLE StagingCustomerTransactions;		
-	END
-
-	EXECUTE FillStagingPeople;
-	EXECUTE FillStagingPaymentMethods;
-	EXECUTE FillStagingDeliveryMethods;
-	EXECUTE FillStagingCities;
-	EXECUTE FillStagingStateProvinces;
-	EXECUTE FillStagingBuyingGroups;
-	EXECUTE FillStagingCustomerCategories;
-	EXECUTE FillStagingCustomers;
-	EXECUTE FillStagingInvoiceLines;
-	EXECUTE FillStagingInvoices;
-	EXECUTE FillStagingOrderLines;
-	EXECUTE FillStagingOrders;
-	EXECUTE FillStagingCustomerTransactions;
-
-END
---------------------------------------------------------------------------------------------------------------
-GO

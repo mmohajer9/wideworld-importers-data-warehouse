@@ -1,30 +1,39 @@
-use [WWI-Staging];
-GO
+use [WWI-Staging]
+
+
+
+
+
+IF OBJECT_ID('dbo.LogSales', 'U') IS NOT NULL
+drop table LogSales
+create table LogSales(
+	Id bigint IDENTITY(1,1) primary key,
+	ActionName nvarchar(30),
+	TableName nvarchar(100),
+	date date,
+	RecordId	int,
+	RecordSurrogateKey int null)
+
+Go
 
 
 
 --*****************************start Staging People******************************
 IF OBJECT_ID('dbo.StagingPeople', 'U') IS NOT NULL
 drop table StagingPeople
-CREATE TABLE StagingPeople
-(
-	PersonID int NOT NULL Primary key,
-	FullName nvarchar(50) NOT NULL,
-	PreferredName nvarchar(50) NOT NULL,
-	SearchName  AS (concat([PreferredName],N' ',[FullName])) PERSISTED NOT NULL,
-	IsPermittedToLogon bit NOT NULL,
-	IsExternalLogonProvider bit NOT NULL,
-	IsSystemUser bit NOT NULL,
-	IsEmployee bit NOT NULL,
-	IsSalesperson bit NOT NULL,
+CREATE TABLE StagingPeople(
+	PersonID int Primary key,
+	FullName nvarchar(50),
+	PreferredName nvarchar(50),
+	IsEmployee nvarchar(5),
+	IsSalesperson nvarchar(5),
 	UserPreferences nvarchar(max) NULL,
 	PhoneNumber nvarchar(20) NULL,
 	FaxNumber nvarchar(20) NULL,
 	EmailAddress nvarchar(256) NULL,
 	Photo varbinary(max) NULL,
 	CustomFields nvarchar(max) NULL,
-	OtherLanguages  AS (json_query([CustomFields],N'$.OtherLanguages')),
-)
+	OtherLanguages  AS (json_query([CustomFields],N'$.OtherLanguages')),)
 GO
 --***************************** end Staging People*******************************
 
@@ -35,11 +44,9 @@ GO
 --***************************** start Staging PaymentMethod*******************************
 IF OBJECT_ID('dbo.StagingPaymentMethods', 'U') IS NOT NULL
 drop table StagingPaymentMethods
-CREATE TABLE StagingPaymentMethods
-(
-	[PaymentMethodID] [int] NOT NULL,
-	[PaymentMethodName] [nvarchar](50) NOT NULL
-)
+CREATE TABLE StagingPaymentMethods(
+	[PaymentMethodID] [int],
+	[PaymentMethodName] [nvarchar](50))
 Go
 --***************************** end Staging PaymentMethod*******************************
 
@@ -50,11 +57,9 @@ Go
 --***************************** start Staging Delivery method*******************************
 IF OBJECT_ID('dbo.StagingDeliveryMethods', 'U') IS NOT NULL
 drop table StagingDeliveryMethods
-CREATE TABLE StagingDeliveryMethods
-(
-	[DeliveryMethodID] [int] NOT NULL,
-	[DeliveryMethodName] [nvarchar](50) NOT NULL
-)
+CREATE TABLE StagingDeliveryMethods(
+	[DeliveryMethodID] [int],
+	[DeliveryMethodName] [nvarchar](50))
 Go
 --***************************** end Staging delivery method*******************************
 
@@ -65,13 +70,11 @@ Go
 --***************************** start Staging Cities*******************************
 IF OBJECT_ID('dbo.StagingCities', 'U') IS NOT NULL
 drop table StagingCities
-CREATE TABLE StagingCities
-(
-	CityID [int] NOT NULL primary key,
-	[CityName] [nvarchar](50) NOT NULL,
-	[StateProvinceID] [int] NOT NULL,
-	[LatestRecordedPopulation] [bigint] NULL,
-)
+CREATE TABLE StagingCities(
+	CityID [int] primary key,
+	[CityName] [nvarchar](50),
+	[StateProvinceID] [int],
+	[LatestRecordedPopulation] [bigint] NULL,)
 Go
 --***************************** end Staging Cities*******************************
 
@@ -82,15 +85,13 @@ Go
 --***************************** start Staging Province*******************************
 IF OBJECT_ID('dbo.StagingStateProvinces', 'U') IS NOT NULL
 drop table StagingStateProvinces
-CREATE TABLE StagingStateProvinces
-(
-	[StateProvinceID] [int] NOT NULL primary key,
-	[StateProvinceCode] [nvarchar](5) NOT NULL,
-	[StateProvinceName] [nvarchar](50) NOT NULL,
-	[CountryID] [int] NOT NULL,
-	[SalesTerritory] [nvarchar](50) NOT NULL,
-	[LatestRecordedPopulation] [bigint] NULL
-)
+CREATE TABLE StagingStateProvinces(
+	[StateProvinceID] [int] primary key,
+	[StateProvinceCode] [nvarchar](5),
+	[StateProvinceName] [nvarchar](50),
+	[CountryID] [int],
+	[SalesTerritory] [nvarchar](50),
+	[LatestRecordedPopulation] [bigint] NULL)
 Go
 --***************************** end Staging Province*********************************
 
@@ -101,10 +102,9 @@ Go
 --***************************** start Staging BuyingGroups*******************************
 IF OBJECT_ID('dbo.StagingBuyingGroups', 'U') IS NOT NULL
 drop table StagingBuyingGroups
-CREATE TABLE StagingBuyingGroups
-(
-	[BuyingGroupID] [int] NOT NULL,
-	[BuyingGroupName] [nvarchar](50) NOT NULL
+CREATE TABLE StagingBuyingGroups(
+	[BuyingGroupID] [int],
+	[BuyingGroupName] [nvarchar](50)
 )
 GO
 --***************************** end Staging BuyingGroups*********************************
@@ -118,11 +118,9 @@ GO
 --***************************** start Staging CustomerCategories*******************************
 IF OBJECT_ID('dbo.StagingCustomerCategories', 'U') IS NOT NULL
 drop table StagingCustomerCategories
-CREATE TABLE StagingCustomerCategories
-(
-	[CustomerCategoryID] [int] NOT NULL,
-	[CustomerCategoryName] [nvarchar](50) NOT NULL
-)
+CREATE TABLE StagingCustomerCategories(
+	[CustomerCategoryID] [int],
+	[CustomerCategoryName] [nvarchar](50))
 Go
 --***************************** end Staging CustomerCategories*******************************
 
@@ -135,36 +133,34 @@ Go
 --***************************** start Staging Customers*******************************
 IF OBJECT_ID('dbo.StagingCustomers', 'U') IS NOT NULL
 drop table StagingCustomers
-CREATE TABLE StagingCustomers
-(
-	[CustomerID] [int] NOT NULL,
-	[CustomerName] [nvarchar](100) NOT NULL,
-	[BillToCustomerID] [int] NOT NULL,
-	[CustomerCategoryID] [int] NOT NULL,
+CREATE TABLE StagingCustomers(
+	[CustomerID] [int],
+	[CustomerName] [nvarchar](100),
+	[BillToCustomerID] [int],
+	[CustomerCategoryID] [int],
 	[BuyingGroupID] [int] NULL,
-	[PrimaryContactPersonID] [int] NOT NULL,
+	[PrimaryContactPersonID] [int],
 	[AlternateContactPersonID] [int] NULL,
-	[DeliveryMethodID] [int] NOT NULL,
-	[DeliveryCityID] [int] NOT NULL,
-	[PostalCityID] [int] NOT NULL,
+	[DeliveryMethodID] [int],
+	[DeliveryCityID] [int],
+	[PostalCityID] [int],
 	[CreditLimit] [decimal](18, 2) NULL,
-	[AccountOpenedDate] [date] NOT NULL,
-	[StandardDiscountPercentage] [decimal](18, 3) NOT NULL,
-	[IsStatementSent] [bit] NOT NULL,
-	[IsOnCreditHold] [bit] NOT NULL,
-	[PaymentDays] [int] NOT NULL,
-	[PhoneNumber] [nvarchar](20) NOT NULL,
-	[FaxNumber] [nvarchar](20) NOT NULL,
+	[AccountOpenedDate] [date],
+	[StandardDiscountPercentage] [decimal](18, 3),
+	[IsStatementSent] [bit],
+	[IsOnCreditHold] [bit],
+	[PaymentDays] [int],
+	[PhoneNumber] [nvarchar](20),
+	[FaxNumber] [nvarchar](20),
 	[DeliveryRun] [nvarchar](5) NULL,
 	[RunPosition] [nvarchar](5) NULL,
-	[WebsiteURL] [nvarchar](256) NOT NULL,
-	[DeliveryAddressLine1] [nvarchar](60) NOT NULL,
+	[WebsiteURL] [nvarchar](256),
+	[DeliveryAddressLine1] [nvarchar](60),
 	[DeliveryAddressLine2] [nvarchar](60) NULL,
-	[DeliveryPostalCode] [nvarchar](10) NOT NULL,
-	[PostalAddressLine1] [nvarchar](60) NOT NULL,
+	[DeliveryPostalCode] [nvarchar](10),
+	[PostalAddressLine1] [nvarchar](60),
 	[PostalAddressLine2] [nvarchar](60) NULL,
-	[PostalPostalCode] [nvarchar](10) NOT NULL
-)
+	[PostalPostalCode] [nvarchar](10))
 Go
 --***************************** end Staging Customers**********************************
 
@@ -174,25 +170,6 @@ Go
 
 
 
---***************************** start Staging InvoiceLines*******************************
-IF OBJECT_ID('dbo.StagingInvoiceLines', 'U') IS NOT NULL
-drop table StagingInvoiceLines
-CREATE TABLE StagingInvoiceLines
-(
-	[InvoiceLineID] [int] NOT NULL,
-	[InvoiceID] [int] NOT NULL,
-	[StockItemID] [int] NOT NULL,
-	[Description] [nvarchar](100) NOT NULL,
-	[PackageTypeID] [int] NOT NULL,
-	[Quantity] [int] NOT NULL,
-	[UnitPrice] [decimal](18, 2) NULL,
-	[TaxRate] [decimal](18, 3) NOT NULL,
-	[TaxAmount] [decimal](18, 2) NOT NULL,
-	[LineProfit] [decimal](18, 2) NOT NULL,
-	[ExtendedPrice] [decimal](18, 2) NOT NULL
-)
-GO
---***************************** end Staging InvoiceLines*******************************
 
 
 
@@ -203,26 +180,25 @@ GO
 --***************************** start Staging Invoices*******************************
 IF OBJECT_ID('dbo.StagingInvoices', 'U') IS NOT NULL
 drop table StagingInvoices
-CREATE TABLE StagingInvoices
-(
-	[InvoiceID] [int] NOT NULL,
-	[CustomerID] [int] NOT NULL,
-	[BillToCustomerID] [int] NOT NULL,
+CREATE TABLE StagingInvoices(
+	[InvoiceID] [int],
+	[CustomerID] [int],
+	[BillToCustomerID] [int],
 	[OrderID] [int] NULL,
-	[DeliveryMethodID] [int] NOT NULL,
-	[ContactPersonID] [int] NOT NULL,
-	[AccountsPersonID] [int] NOT NULL,
-	[SalespersonPersonID] [int] NOT NULL,
-	[PackedByPersonID] [int] NOT NULL,
-	[InvoiceDate] [date] NOT NULL,
+	[DeliveryMethodID] [int],
+	[ContactPersonID] [int],
+	[AccountsPersonID] [int],
+	[SalespersonPersonID] [int],
+	[PackedByPersonID] [int],
+	[InvoiceDate] [date],
 	[CustomerPurchaseOrderNumber] [nvarchar](20) NULL,
-	[IsCreditNote] [bit] NOT NULL,
+	[IsCreditNote] [bit],
 	[CreditNoteReason] [nvarchar](max) NULL,
 	[Comments] [nvarchar](max) NULL,
 	[DeliveryInstructions] [nvarchar](max) NULL,
 	[InternalComments] [nvarchar](max) NULL,
-	[TotalDryItems] [int] NOT NULL,
-	[TotalChillerItems] [int] NOT NULL,
+	[TotalDryItems] [int],
+	[TotalChillerItems] [int],
 	[DeliveryRun] [nvarchar](5) NULL,
 	[RunPosition] [nvarchar](5) NULL,
 	[ReturnedDeliveryData] [nvarchar](max) NULL,
@@ -236,53 +212,23 @@ go
 
 
 
-
-
---***************************** start Staging OrderLines*******************************
-IF OBJECT_ID('dbo.StagingOrderLines', 'U') IS NOT NULL
-drop table StagingOrderLines
-CREATE TABLE StagingOrderLines
-(
-	[OrderLineID] [int] NOT NULL,
-	[OrderID] [int] NOT NULL,
-	[StockItemID] [int] NOT NULL,
-	[Description] [nvarchar](100) NOT NULL,
-	[PackageTypeID] [int] NOT NULL,
-	[Quantity] [int] NOT NULL,
-	[UnitPrice] [decimal](18, 2) NULL,
-	[TaxRate] [decimal](18, 3) NOT NULL,
-	[PickedQuantity] [int] NOT NULL,
-	[PickingCompletedWhen] datetime NULL
-)
-go
---***************************** end Staging OrderLines**********************************
-
-
-
-
-
-
-
 --***************************** start Staging Orders************************************
 IF OBJECT_ID('dbo.StagingOrders', 'U') IS NOT NULL
 drop table StagingOrders
-CREATE TABLE StagingOrders
-(
-	[OrderID] [int] NOT NULL,
-	[CustomerID] [int] NOT NULL,
-	[SalespersonPersonID] [int] NOT NULL,
+CREATE TABLE StagingOrders(
+	[OrderID] [int],
+	[CustomerID] [int],
+	[SalespersonPersonID] [int],
 	[PickedByPersonID] [int] NULL,
-	[ContactPersonID] [int] NOT NULL,
+	[ContactPersonID] [int],
 	[BackorderOrderID] [int] NULL,
-	[OrderDate] [date] NOT NULL,
-	[ExpectedDeliveryDate] [date] NOT NULL,
+	[OrderDate] [date],
+	[ExpectedDeliveryDate] [date],
 	[CustomerPurchaseOrderNumber] [nvarchar](20) NULL,
-	[IsUndersupplyBackordered] [bit] NOT NULL,
-	[DeliveryInstructions] [nvarchar](max) NULL
-)
+	[IsUndersupplyBackordered] [bit],
+	[DeliveryInstructions] [nvarchar](max) NULL)
 go
 --***************************** end Staging Orders***************************************
-
 
 
 
@@ -292,17 +238,16 @@ go
 --***************************** start Staging Customer Transactions************************************
 IF OBJECT_ID('dbo.StagingCustomerTransactions', 'U') IS NOT NULL
 drop table StagingCustomerTransactions
-CREATE TABLE StagingCustomerTransactions
-(
-	[CustomerTransactionID] [int] NOT NULL,
-	[CustomerID] [int] NOT NULL,
-	[TransactionTypeID] [int] NOT NULL,
+CREATE TABLE StagingCustomerTransactions(
+	[CustomerTransactionID] [int],
+	[CustomerID] [int],
+	[TransactionTypeID] [int],
 	[InvoiceID] [int] NULL,
 	[PaymentMethodID] [int] NULL,
-	[TransactionDate] [date] NOT NULL,
-	[AmountExcludingTax] [decimal](18, 2) NOT NULL,
-	[TaxAmount] [decimal](18, 2) NOT NULL,
-	[TransactionAmount] [decimal](18, 2) NOT NULL
+	[TransactionDate] [date],
+	[AmountExcludingTax] [decimal](18, 2),
+	[TaxAmount] [decimal](18, 2),
+	[TransactionAmount] [decimal](18, 2)
 )
 Go
 --***************************** end Staging Customer Transactions**********************************************

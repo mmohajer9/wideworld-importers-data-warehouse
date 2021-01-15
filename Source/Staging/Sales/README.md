@@ -1,3 +1,0 @@
-# README
-
-## Owner : Mohammad Derakhshan
