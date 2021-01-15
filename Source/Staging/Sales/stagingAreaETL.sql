@@ -165,7 +165,7 @@ GO
 
 
 
-
+select * from WideWorldImporters.Sales.Invoices
 
 
 
