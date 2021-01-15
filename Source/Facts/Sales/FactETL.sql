@@ -1,5 +1,4 @@
-use [WWI-DW];
-GO
+use [WWI-DW]
 
 
 Go
@@ -7,54 +6,60 @@ create or alter procedure FillFactTransaction (@date date) AS
 begin
 
 	declare @max_date date = ISNULL(
-	(select DimTime.FullDateAlternateKey From DimTime where TimeKey = (select max(TimeKey) from FactTransaction)), '2012-12-31')
+	(select FullDateAlternateKey From [WWI-DW].dbo.DimTime where TimeKey = (select max(TimeKey) from FactTransaction)), '2012-12-31')
 
-	IF OBJECT_ID('dbo.tmp', 'U') IS NOT NULL
-    drop table tmp
-	create table tmp(
-		TimeKey int FOREIGN KEY REFERENCES DimTime(TimeKey),
-		CustomerKey int FOREIGN KEY REFERENCES DimCustomer(CustomerKey),
-		OrderKey int FOREIGN KEY REFERENCES DimOrder(OrderKey),
-		InvoiceKey int FOREIGN KEY REFERENCES DimInvoice(InvoiceKey),
-		PeopleKey int FOREIGN KEY REFERENCES DimPeople(PeopleKey),
-		TransactionTypeKey int FOREIGN KEY REFERENCES DimTransactionTypes(TransactionTypeID),
-		PaymentMethodKey int FOREIGN KEY REFERENCES DimPayment(PaymentKey),
+	IF OBJECT_ID('dbo.TMP', 'U') IS NOT NULL
+    drop table TMP;
+
+	create table TMP(
+		TimeKey int ,
+		CustomerKey int ,
+		InvoiceKey int,
+		PeopleKey int,
+		TransactionTypeKey int,
+		PaymentMethodKey int,
 		TransactionID int ,
 		AmountExcludingTax decimal(25,3),
 		TaxAmount decimal(25,3),
-		TransactionAmount decimal(25,3)
-	)
+		TransactionAmount decimal(25,3),
+		profit int);
 
 	while(@max_date<@date) begin
-		set @max_date = DATEADD(dd,1,@max_date)
-		insert into tmp(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
-		AmountExcludingTax,TaxAmount,TransactionAmount)
-		select isnull(dimTime.TimeKey,-1), isnull(DimCustomer.CustomerKey,-1), isnull(DimOrder.OrderKey,-1), 
-		isnull(Transactions.InvoiceID,-1),isnull(DimPeople.PeopleKey,-1),isnull(Transactions.TransactionTypeID,-1), isnull(Transactions.PaymentMethodID,-1),
-		Transactions.CustomerTransactionID,Transactions.AmountExcludingTax, Transactions.TaxAmount, Transactions.TransactionAmount 
-		from StagingCustomerTransactions as Transactions 
-			join DimTime on FullDateAlternateKey = Transactions.TransactionDate and DimTime.FullDateAlternateKey = @max_date
-			left join DimInvoice On DimInvoice.InvoiceKey = Transactions.InvoiceID
-			left join DimOrder On DimOrder.OrderKey = DimInvoice.OrderID
-			left join DimPeople on DimPeople.PeopleKey = DimOrder.PrimaryContactPersonID
-			left join DimPayment on DimPayment.PaymentKey = Transactions.PaymentMethodID
-			left join DimCustomer on DimCustomer.CustomerID = Transactions.CustomerID and DimCustomer.CurrentFlag = 1
-		
-	end
 
+		set @max_date = DATEADD(dd, 1, @max_date);
+
+		with profit(invoiceID , amount) as(
+			select InvoiceID, SUM(InvoiceLine.LineProfit) from [WWI-Staging].dbo.StagingInvoiceLines as InvoiceLine
+			group by InvoiceLine.InvoiceID
+		) insert into TMP (TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
+			AmountExcludingTax,TaxAmount,TransactionAmount, profit )
+		select isnull(dimTime.TimeKey,-1) AS TimeKey, isnull(DimCustomer.CustomerKey,-1) AS CustomerKey, 
+			isnull(Transactions.InvoiceID,-1)AS InvoiceKey, isnull(DimPeople.PeopleKey,-1)AS PeopleKey, 
+			isnull(Transactions.TransactionTypeID,-1)AS TransactionType, isnull(DimPayment.PaymentKey,-1) AS PaymentMethod,
+			Transactions.CustomerTransactionID, Transactions.AmountExcludingTax, Transactions.TaxAmount,
+			Transactions.TransactionAmount,ISNULL(profit.amount,0)
+			from [WWI-Staging].dbo.StagingCustomerTransactions as Transactions 
+				JOIN DimTime on FullDateAlternateKey = Transactions.TransactionDate and CONVERT(date,DimTime.FullDateAlternateKey) =@max_date
+				LEFT JOIN DimInvoice On DimInvoice.InvoiceKey = Transactions.InvoiceID
+				LEFT JOIN DimPeople on DimPeople.PeopleKey = DimInvoice.PrimaryContactPersonID
+				LEFT JOIN DimPayment on DimPayment.PaymentKey = Transactions.PaymentMethodID
+				LEFT JOIN DimCustomer on DimCustomer.CustomerID = Transactions.CustomerID and DimCustomer.CurrentFlag = 1
+				left JOIN profit On profit.invoiceID = Transactions.InvoiceID
+
+
+		insert into FactTransaction(TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
+			AmountExcludingTax,TaxAmount,TransactionAmount,TransactionProfit)
+			select TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
+				AmountExcludingTax,TaxAmount,TransactionAmount,profit from TMP;
+
+		
+		insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
+			select 'insert', 'FactTransaction',getdate(),tmp.TransactionID,null from TMP;
+		
+		truncate table TMP;
+	end 
+
+	drop table TMP;
 	
-	insert into FactTransaction(TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
-		AmountExcludingTax,TaxAmount,TransactionAmount)
-		select TimeKey,CustomerKey,OrderKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
-		AmountExcludingTax,TaxAmount,TransactionAmount from tmp
-
-		
-	insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
-		select 'insert', 'FactTransaction',getdate(),tmp.TransactionID,null from tmp
-		
-	drop table tmp
-
 end
 GO
-
-
