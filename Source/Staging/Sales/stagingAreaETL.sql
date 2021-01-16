@@ -232,3 +232,25 @@ begin
 end
 GO
 --***************************** end Staging Customer Transactions**********************************************
+
+
+
+--^ also add this part :
+
+CREATE OR ALTER PROCEDURE FILL_SALES_STAGING_AREA
+AS
+BEGIN
+	EXEC FillStagingPeople;
+	EXEC FillStagingPaymentMethods;
+	EXEC FillStagingDeliveryMethods;
+	EXEC FillStagingCities;
+	EXEC FillStagingStateProvinces;
+	EXEC FillStagingBuyingGroups;
+	EXEC FillStagingCustomerCategories;
+	EXEC FillStagingCustomers;
+	EXEC FillStagingInvoices;
+	EXEC FillStagingInvoiceLine;
+	EXEC FillStagingOrders;
+	EXEC FillStagingCustomerTransactions;
+END
+
