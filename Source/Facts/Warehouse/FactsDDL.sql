@@ -60,7 +60,7 @@ CREATE TABLE dbo.FactStockItemTran
     --^ MEASURES --> transactional
 
     MovementQuantity [NUMERIC](20 , 3),
-    RemainingQuantity [NUMERIC](20 , 3),
+    RemainingQuantityAfterThisTransaction [NUMERIC](20 , 3),
 );
 GO
 

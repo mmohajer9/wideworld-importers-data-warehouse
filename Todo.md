@@ -17,11 +17,11 @@
 4. **Final Facts + ETL**
    - Warehouse
      - [x] Transactional
-     - [ ] Periodic Snapshot Daily
+     - [x] Periodic Snapshot Daily
      - [ ] Accumulative
    - Sales
-     - [ ] Transactional
-     - [ ] Periodic Snapshot Daily
+     - [x] Transactional
+     - [x] Periodic Snapshot Daily
      - [ ] Accumulative
    - Purchase
      - [ ] Transactional

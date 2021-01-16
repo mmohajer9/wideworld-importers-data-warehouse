@@ -1,6 +1,53 @@
 use [WWI-DW];
 GO
 
+-- Create a new table called 'TotalMovementQuantityForStockItemPerDay' in schema 'dbo'
+-- Drop the table if it already exists
+IF OBJECT_ID('dbo.TotalMovementQuantityForStockItemPerDay', 'U') IS NOT NULL
+DROP TABLE dbo.TotalMovementQuantityForStockItemPerDay
+GO
+-- Create the table in the specified schema
+CREATE TABLE dbo.TotalMovementQuantityForStockItemPerDay
+(
+    StockItemID INT,
+    [Date] DATE,
+    TotalMovementQuantityInDay [NUMERIC](20 , 3), --* all
+);
+GO
+
+
+-- Create a new table called 'TotalEntryMovementQuantityForStockItemPerDay' in schema 'dbo'
+-- Drop the table if it already exists
+IF OBJECT_ID('dbo.TotalEntryMovementQuantityForStockItemPerDay', 'U') IS NOT NULL
+DROP TABLE dbo.TotalEntryMovementQuantityForStockItemPerDay
+GO
+-- Create the table in the specified schema
+CREATE TABLE dbo.TotalEntryMovementQuantityForStockItemPerDay
+(
+    StockItemID INT,
+    [Date] DATE,
+    TotalEntryMovementQuantityInDay [NUMERIC](20 , 3), --* +
+);
+GO
+
+
+-- Create a new table called 'TotalWriteOffMovementQuantityForStockItemPerDay' in schema 'dbo'
+-- Drop the table if it already exists
+IF OBJECT_ID('dbo.TotalWriteOffMovementQuantityForStockItemPerDay', 'U') IS NOT NULL
+DROP TABLE dbo.TotalWriteOffMovementQuantityForStockItemPerDay
+GO
+-- Create the table in the specified schema
+CREATE TABLE dbo.TotalWriteOffMovementQuantityForStockItemPerDay
+(
+    StockItemID INT,
+    [Date] DATE,
+    TotalWriteOffMovementQuantityInDay [NUMERIC](20 , 3), --* -
+);
+GO
+
+
+
+
 CREATE OR ALTER PROCEDURE FillStockItemTranFact
     @to_date DATE
 AS
@@ -35,6 +82,7 @@ BEGIN
         TransactionTypeID INT,
         TransactionDate INT,
         MovementQuantity [NUMERIC](20 , 3),
+        RemainingQuantityAfterThisTransaction [NUMERIC](20 , 3),
     )
 
 
@@ -62,7 +110,8 @@ BEGIN
             PurchaseOrderID,
             TransactionTypeID,
             TransactionDate,
-            MovementQuantity
+            MovementQuantity,
+            RemainingQuantityAfterThisTransaction
             )
         SELECT
             StockItemTransactionID,
@@ -82,13 +131,18 @@ BEGIN
 
             TransactionTypeID,
             TimeKey,
-            Quantity
+            Quantity,
+
+            SUM(Quantity) OVER (PARTITION BY a.StockItemID ORDER BY StockItemTransactionID) + ISNULL(e.TotalMovementQuantityInDay,0)
 
         FROM [WWI-Staging].dbo.StagingStockItemTransactions a
+            LEFT OUTER JOIN TotalMovementQuantityForStockItemPerDay e 
+            on (e.StockItemID = a.StockItemID and e.Date = DATEADD(dd, -1, @LastAddedDate))
             LEFT OUTER JOIN DimStockItems b on (a.StockItemID = b.StockItemID)
             LEFT OUTER JOIN DimTime c on (a.TransactionOccurredWhen = c.FullDateAlternateKey)
             LEFT OUTER JOIN DimCustomer d on (d.CustomerID = a.CustomerID)
-        WHERE (TransactionOccurredWhen >= @LastAddedDate AND TransactionOccurredWhen < DATEADD(dd, 1, @LastAddedDate)) AND (CurrentFlag = 1 or CurrentFlag is NULL)
+        WHERE (TransactionOccurredWhen >= @LastAddedDate AND TransactionOccurredWhen < DATEADD(dd, 1, @LastAddedDate))
+            AND (CurrentFlag = 1 or CurrentFlag is NULL)
         
         SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
@@ -106,7 +160,8 @@ BEGIN
             PurchaseOrderID,
             TransactionTypeID,
             TransactionDate,
-            MovementQuantity
+            MovementQuantity,
+            RemainingQuantityAfterThisTransaction
             )
         SELECT
             StockItemTransactionID,
@@ -121,7 +176,8 @@ BEGIN
             PurchaseOrderID,
             TransactionTypeID,
             TransactionDate,
-            MovementQuantity
+            MovementQuantity,
+            RemainingQuantityAfterThisTransaction
         FROM temp_fact_stock_item_transactions
 
         --? LOG
@@ -130,8 +186,63 @@ BEGIN
             @action = 'INSERT',
             @FactName = 'FactStockItemTran',
             @Datetime = @CURRENT_DATETIME,
-            @AffectedRowsNumber = @@ROWCOUNT
+            @AffectedRowsNumber = @@ROWCOUNT;
+        
+        WITH T1 (StockItemID,TotalMovementQuantityInDay)
+            AS
+            (
+                SELECT a.StockItemID , SUM(MovementQuantity)
+                FROM temp_fact_stock_item_transactions a
+                GROUP BY a.StockItemID
+            )
+            INSERT INTO TotalMovementQuantityForStockItemPerDay
+            (
+                StockItemID,
+                [Date],
+                TotalMovementQuantityInDay
+            )
+            SELECT StockItemID , @LastAddedDate , TotalMovementQuantityInDay
+            FROM T1;
 
+
+        WITH T2 (StockItemID,TotalEntryMovementQuantityInDay)
+            AS
+            (
+                SELECT a.StockItemID , SUM(MovementQuantity)
+                FROM temp_fact_stock_item_transactions a
+                WHERE MovementQuantity > 0
+                GROUP BY a.StockItemID
+            )
+            INSERT INTO TotalEntryMovementQuantityForStockItemPerDay
+            (
+                StockItemID,
+                [Date],
+                TotalEntryMovementQuantityInDay
+            )
+            SELECT StockItemID , @LastAddedDate , TotalEntryMovementQuantityInDay
+            FROM T2;
+
+        WITH T3 (StockItemID,TotalWriteOffMovementQuantityInDay)
+            AS
+            (
+                SELECT a.StockItemID , SUM(MovementQuantity)
+                FROM temp_fact_stock_item_transactions a
+                WHERE MovementQuantity < 0
+                GROUP BY a.StockItemID
+            )
+            INSERT INTO TotalWriteOffMovementQuantityForStockItemPerDay
+            (
+                StockItemID,
+                [Date],
+                TotalWriteOffMovementQuantityInDay
+            )
+            SELECT StockItemID , @LastAddedDate , TotalWriteOffMovementQuantityInDay
+            FROM T3;
+
+
+        --????
+        
+    
     END
 
 
