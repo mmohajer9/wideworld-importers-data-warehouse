@@ -8,7 +8,7 @@ CREATE TABLE DimPurchaseOrder(
 	IsOrderFinalized bit,
 );
 --------------------------------------------------
-CREATE TABLE DimSuplier(
+CREATE TABLE DimSupplier(
 	SupplierID int PRIMARY KEY,
 	SupplierName nvarchar(100),
 	SupplierCategoryID int,

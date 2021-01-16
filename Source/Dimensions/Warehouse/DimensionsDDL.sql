@@ -76,10 +76,11 @@ CREATE TABLE dbo.DimStockItems
 
     --^ columns from stockitems
     [SupplierID] [int],
+    [SupplierName] [NVARCHAR](100), --^ added for more details
     
     Brand [NVARCHAR](100),
     Size [NVARCHAR](50),
-    IsChillerStock BIT,
+    IsChillerStock [NVARCHAR](10), --^ in source it was bit field => changed to nvarchar
     Barcode [NVARCHAR](100),
 
     ColorID INT,
@@ -93,7 +94,14 @@ CREATE TABLE dbo.DimStockItems
     --* some numeric columns
 
     TaxRate [NUMERIC](20 , 3),
-    UnitPrice [NUMERIC](20 , 3),
+
+    --& SCD Type 3
+    OriginalUnitPrice [NUMERIC](20 , 3),
+    CurrentUnitPrice [NUMERIC](20 , 3),
+    UnitPriceEffectiveDate [DATE],
+    --& SCD Type 3
+
+
     RecommendedRetailPrice [NUMERIC](20 , 3),
     TypicalWeightPerUnit [NUMERIC](20 , 3),
 
@@ -109,8 +117,10 @@ CREATE TABLE dbo.DimStockItems
     --& SCD Type 3
     OriginalBinLocation [NVARCHAR](40),
     CurrentBinLocation [NVARCHAR](40),
-    EffectiveDate [DATE],
+    BinLocationEffectiveDate [DATE],
     --& SCD Type 3
+
+
 
 );
 GO

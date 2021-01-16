@@ -1,9 +1,9 @@
 use [WWI-DW]
 
+Go
 
 
 --***************************************************************** START Invoice DIMENTION AREA*************************
-Go
 CREATE OR ALTER  Procedure FillDimInvoice as
 Begin
 	
@@ -231,3 +231,17 @@ END
 Go
 --***************************************************************** END PEOPLE DIMENTION AREA*************************
 
+
+
+
+
+--^ also add this part :
+
+CREATE OR ALTER PROCEDURE SALES_DIMENSIONS_SCD_ETL
+AS
+BEGIN
+	EXECUTE FillDimInvoice;
+	EXECUTE FillDimCustomer;
+	EXECUTE FillDimPayment;
+	EXECUTE FillDimPeople;
+END

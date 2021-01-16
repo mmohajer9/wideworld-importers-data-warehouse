@@ -1,3 +1,8 @@
+use [WWI-DW];
+
+GO
+
+
 CREATE OR ALTER PROCEDURE SCD1_DimStockGroup
 -- @param1 int = 0,
 -- @param2 int = 0
@@ -19,7 +24,7 @@ BEGIN
         WHERE StockGroupID in (
         select
             StockGroupID
-        from StagingStockGroups        
+        from [WWI-Staging].dbo.StagingStockGroups        
         );
 
 
@@ -36,7 +41,7 @@ BEGIN
         select
             StockGroupID,
             StockGroupName
-        from StagingStockGroups
+        from [WWI-Staging].dbo.StagingStockGroups
 
 
         exec [AddDimensionLog] 
@@ -57,7 +62,7 @@ BEGIN
         select
             StockGroupID,
             StockGroupName
-        from StagingStockGroups
+        from [WWI-Staging].dbo.StagingStockGroups
 
 
         exec [AddDimensionLog] 
@@ -94,7 +99,7 @@ BEGIN
         WHERE PackageTypeID in (
         select
             PackageTypeID
-        from StagingPackageTypes        
+        from [WWI-Staging].dbo.StagingPackageTypes        
         );
 
 
@@ -112,7 +117,7 @@ BEGIN
         select
             PackageTypeID,
             PackageTypeName
-        from StagingPackageTypes
+        from [WWI-Staging].dbo.StagingPackageTypes
 
 
         exec [AddDimensionLog] 
@@ -132,7 +137,7 @@ BEGIN
         select
             PackageTypeID,
             PackageTypeName
-        from StagingPackageTypes
+        from [WWI-Staging].dbo.StagingPackageTypes
 
 
         exec [AddDimensionLog] 
@@ -169,7 +174,7 @@ BEGIN
         WHERE TransactionTypeID in (
         select
             TransactionTypeID
-        from StagingTransactionTypes        
+        from [WWI-Staging].dbo.StagingTransactionTypes        
         );
 
 
@@ -186,7 +191,7 @@ BEGIN
         select
             TransactionTypeID,
             TransactionTypeName
-        from StagingTransactionTypes
+        from [WWI-Staging].dbo.StagingTransactionTypes
 
 
         exec [AddDimensionLog] 
@@ -206,7 +211,7 @@ BEGIN
         select
             TransactionTypeID,
             TransactionTypeName
-        from StagingTransactionTypes
+        from [WWI-Staging].dbo.StagingTransactionTypes
 
 
         exec [AddDimensionLog] 
@@ -244,7 +249,7 @@ BEGIN
         WHERE ColorID in (
         select
             ColorID
-        from StagingColors        
+        from [WWI-Staging].dbo.StagingColors        
         );
 
 
@@ -261,7 +266,7 @@ BEGIN
         select
             ColorID,
             ColorName
-        from StagingColors
+        from [WWI-Staging].dbo.StagingColors
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD1_DimColors',
@@ -280,7 +285,7 @@ BEGIN
         select
             ColorID,
             ColorName
-        from StagingColors
+        from [WWI-Staging].dbo.StagingColors
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD1_DimColors',
@@ -302,7 +307,12 @@ CREATE OR ALTER PROCEDURE SCD3_DimStockItems
 -- @param2 int = 0
 AS
 BEGIN
+    IF OBJECT_ID('dbo.temp_modified', 'U') IS NOT NULL
+        DROP TABLE temp_modified;
 
+    IF OBJECT_ID('dbo.temp_origin', 'U') IS NOT NULL
+        DROP TABLE temp_origin;
+    
     DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
 
     DECLARE @dim_row_count INT;
@@ -314,7 +324,8 @@ BEGIN
     select
         a.StockItemID,
         StockItemName,
-        SupplierID,
+        a.SupplierID,
+        SupplierName,
         Brand,
         Size,
         IsChillerStock,
@@ -326,7 +337,10 @@ BEGIN
         e.PackageTypeID as OuterPackageID,
         e.PackageTypeName as OuterPackageName,
         TaxRate,
+
+        --? scd fields
         UnitPrice,
+
         RecommendedRetailPrice,
         TypicalWeightPerUnit,
 
@@ -335,16 +349,17 @@ BEGIN
         LastStocktakeQuantity,
         TargetStockLevel,
         ReorderLevel,
+        
         --? scd fields
         BinLocation
 
-    INTO #temp_origin
-    from StagingStockItems a
-        left outer join StagingStockItemHoldings b on (a.StockItemID = b.StockItemID)
-        left outer join StagingColors c on (a.ColorID = c.ColorID)
-        left outer join StagingPackageTypes d on (a.UnitPackageID = d.PackageTypeID)
-        left outer join StagingPackageTypes e on (a.OuterPackageID = e.PackageTypeID)
-
+    INTO temp_origin
+    from [WWI-Staging].dbo.StagingStockItems a
+        left outer join [WWI-Staging].dbo.StagingStockItemHoldings b on (a.StockItemID = b.StockItemID)
+        left outer join [WWI-Staging].dbo.StagingColors c on (a.ColorID = c.ColorID)
+        left outer join [WWI-Staging].dbo.StagingPackageTypes d on (a.UnitPackageID = d.PackageTypeID)
+        left outer join [WWI-Staging].dbo.StagingPackageTypes e on (a.OuterPackageID = e.PackageTypeID)
+        left outer join [WWI-Staging].dbo.StagingSupplier f on (a.SupplierID = f.SupplierID)
 
 
     IF @dim_row_count = 0
@@ -356,11 +371,15 @@ BEGIN
 
             StockItemID,
             StockItemName,
+
             SupplierID,
+            SupplierName,
+
             Brand,
             Size,
             IsChillerStock,
             Barcode,
+
             ColorID,
             ColorName,
             UnitPackageID,
@@ -368,7 +387,12 @@ BEGIN
             OuterPackageID,
             OuterPackageName,
             TaxRate,
+
+            --? scd 3 fields
             UnitPrice,
+            UnitPrice,
+            CONVERT(DATE, GETDATE()),
+
             RecommendedRetailPrice,
             TypicalWeightPerUnit,
 
@@ -378,12 +402,12 @@ BEGIN
             TargetStockLevel,
             ReorderLevel,
 
-            --? scd fields
+            --? scd 3 fields
             BinLocation,
             BinLocation,
             CONVERT(DATE, GETDATE())
 
-        from #temp_origin
+        from temp_origin
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -405,6 +429,60 @@ BEGIN
             a.StockItemID,
             StockItemName,
             SupplierID,
+            SupplierName,
+            Brand,
+            Size,
+            IsChillerStock,
+            Barcode,
+            ColorID,
+            ColorName,
+            UnitPackageID,
+            UnitPackageName,
+            OuterPackageID,
+            OuterPackageName,
+            TaxRate,
+
+            --? scd 3 fields
+            UnitPrice,
+            UnitPrice,
+            CONVERT(DATE, GETDATE()),
+
+            RecommendedRetailPrice,
+            TypicalWeightPerUnit,
+
+            LastCostPrice,
+            QuantityOnHand,
+            LastStocktakeQuantity,
+            TargetStockLevel,
+            ReorderLevel,
+
+            --? scd fields
+            BinLocation,
+            BinLocation,
+            CONVERT(DATE, GETDATE())
+
+        from temp_origin a
+        where StockItemID not in (
+            select StockItemID
+        from DimStockItems
+        )
+
+        exec [AddDimensionLog] 
+        @procedure_name = 'SCD3_DimStockItems',
+        @action = 'INSERT',
+        @DimensionName = 'DimStockItems',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT
+
+        --^ track the modified records
+        
+        --? BinLocation
+
+        select
+            a.StockItemID,
+            StockItemName,
+            SupplierID,
+            SupplierName,
             Brand,
             Size,
             IsChillerStock,
@@ -427,26 +505,37 @@ BEGIN
             ReorderLevel,
 
             --? scd fields
-            BinLocation,
-            BinLocation,
-            CONVERT(DATE, GETDATE())
-
-        from #temp_origin a
-        where StockItemID not in (
+            BinLocation
+        INTO temp_modified
+        from temp_origin a
+        where StockItemID in (
             select StockItemID
         from DimStockItems
+        where a.BinLocation <> BinLocation
         )
 
+        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
+        UPDATE DimStockItems
+        SET BinLocationEffectiveDate = CONVERT(DATE, GETDATE()),
+            OriginalBinLocation = CurrentBinLocation,
+            CurrentBinLocation = b.BinLocation
+        FROM DimStockItems a inner join temp_modified b
+            on a.StockItemID = b.StockItemID
+        where a.StockItemID in (
+            select StockItemID
+        from temp_modified);
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
-        @action = 'INSERT',
+        @action = 'UPDATE',
         @DimensionName = 'DimStockItems',
         @Datetime = @CURRENT_DATETIME,
         @AffectedRowsNumber = @@ROWCOUNT
 
-        -- track the modified records
+
+        --? Unit Price
+        DROP TABLE temp_modified;
 
         select
             a.StockItemID,
@@ -475,25 +564,25 @@ BEGIN
 
             --? scd fields
             BinLocation
-        INTO #temp_modified
-        from #temp_origin a
+        INTO temp_modified
+        from temp_origin a
         where StockItemID in (
             select StockItemID
-        from DimStockItems
-        where a.BinLocation <> BinLocation
+            from DimStockItems
+            where a.UnitPrice <> UnitPrice
         )
 
         SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
         UPDATE DimStockItems
-        SET EffectiveDate = CONVERT(DATE, GETDATE()),
-            OriginalBinLocation = CurrentBinLocation,
-            CurrentBinLocation = b.BinLocation
-        FROM DimStockItems a inner join #temp_modified b
+        SET UnitPriceEffectiveDate = CONVERT(DATE, GETDATE()),
+            OriginalUnitPrice = OriginalUnitPrice,
+            CurrentUnitPrice = b.CurrentUnitPrice
+        FROM DimStockItems a inner join temp_modified b
             on a.StockItemID = b.StockItemID
         where a.StockItemID in (
             select StockItemID
-        from #temp_modified);
+        from temp_modified);
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -502,9 +591,8 @@ BEGIN
         @Datetime = @CURRENT_DATETIME,
         @AffectedRowsNumber = @@ROWCOUNT
 
-        DROP TABLE #temp_modified;
-        DROP TABLE #temp_origin;
     END
+
 
 END
 
@@ -579,17 +667,71 @@ BEGIN
     IF @does_it_have_unknown_record = 0
     BEGIN
         INSERT INTO DimStockItems (
-            StockItemID,StockItemName,
-            SupplierID,Brand,Size,IsChillerStock,
-            Barcode,ColorID,ColorName,
-            UnitPackageTypeID,UnitPackageTypeName,OuterPackageTypeID,
-            OuterPackageTypeName,TaxRate,UnitPrice,
-            RecommendedRetailPrice,TypicalWeightPerUnit,LastCostPrice,
-            QuantityOnHand,LastStocktakeQuantity,TargetStockLevel,
-            ReorderLevel,OriginalBinLocation,CurrentBinLocation,
-            EffectiveDate
+            StockItemID,
+            StockItemName,
+            SupplierID,
+            SupplierName,
+            Brand,
+            Size,
+            IsChillerStock,
+            Barcode,
+            ColorID,
+            ColorName,
+            UnitPackageTypeID,
+            UnitPackageTypeName,
+            OuterPackageTypeID,
+            OuterPackageTypeName,
+            TaxRate,
+
+            OriginalUnitPrice,
+            CurrentUnitPrice,
+            UnitPriceEffectiveDate,
+
+            RecommendedRetailPrice,
+            TypicalWeightPerUnit,
+            LastCostPrice,
+            QuantityOnHand,
+            LastStocktakeQuantity,
+            TargetStockLevel,
+            ReorderLevel,
+
+            OriginalBinLocation,
+            CurrentBinLocation,
+            BinLocationEffectiveDate
         )
-        VALUES(-1,'UNKNOWN',-1,NULL,NULL,0,NULL,-1,'UNKNOWN',-1,'UNKNOWN',-1,'UNKNOWN',0,0,0,0,0,-1,-1,-1,-1,'UNKNOWN','UNKNOWN','2012-12-31')
+        VALUES(
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            0,
+
+            0,
+            0,
+            '2012-12-31',
+
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+
+            'UNKNOWN',
+            'UNKNOWN',
+            '2012-12-31'
+        )
     END
 
 END
