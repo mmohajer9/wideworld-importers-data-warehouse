@@ -307,7 +307,12 @@ CREATE OR ALTER PROCEDURE SCD3_DimStockItems
 -- @param2 int = 0
 AS
 BEGIN
+    IF OBJECT_ID('dbo.temp_modified', 'U') IS NOT NULL
+        DROP TABLE temp_modified;
 
+    IF OBJECT_ID('dbo.temp_origin', 'U') IS NOT NULL
+        DROP TABLE temp_origin;
+    
     DECLARE @CURRENT_DATETIME DATETIME2 = (select CONVERT(DATETIME2, GETDATE()));
 
     DECLARE @dim_row_count INT;
@@ -323,9 +328,7 @@ BEGIN
         SupplierName,
         Brand,
         Size,
-        CASE IsChillerStock
-		    WHEN 1 then 'Yes' else 'No' 
-	    END as IsChillerStock,
+        IsChillerStock,
         Barcode,
         a.ColorID,
         ColorName,
@@ -334,7 +337,10 @@ BEGIN
         e.PackageTypeID as OuterPackageID,
         e.PackageTypeName as OuterPackageName,
         TaxRate,
+
+        --? scd fields
         UnitPrice,
+
         RecommendedRetailPrice,
         TypicalWeightPerUnit,
 
@@ -343,10 +349,11 @@ BEGIN
         LastStocktakeQuantity,
         TargetStockLevel,
         ReorderLevel,
+        
         --? scd fields
         BinLocation
 
-    INTO #temp_origin
+    INTO temp_origin
     from [WWI-Staging].dbo.StagingStockItems a
         left outer join [WWI-Staging].dbo.StagingStockItemHoldings b on (a.StockItemID = b.StockItemID)
         left outer join [WWI-Staging].dbo.StagingColors c on (a.ColorID = c.ColorID)
@@ -364,11 +371,15 @@ BEGIN
 
             StockItemID,
             StockItemName,
+
             SupplierID,
+            SupplierName,
+
             Brand,
             Size,
             IsChillerStock,
             Barcode,
+
             ColorID,
             ColorName,
             UnitPackageID,
@@ -396,7 +407,7 @@ BEGIN
             BinLocation,
             CONVERT(DATE, GETDATE())
 
-        from #temp_origin
+        from temp_origin
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -418,6 +429,7 @@ BEGIN
             a.StockItemID,
             StockItemName,
             SupplierID,
+            SupplierName,
             Brand,
             Size,
             IsChillerStock,
@@ -449,13 +461,11 @@ BEGIN
             BinLocation,
             CONVERT(DATE, GETDATE())
 
-        from #temp_origin a
+        from temp_origin a
         where StockItemID not in (
             select StockItemID
         from DimStockItems
         )
-
-
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -472,6 +482,7 @@ BEGIN
             a.StockItemID,
             StockItemName,
             SupplierID,
+            SupplierName,
             Brand,
             Size,
             IsChillerStock,
@@ -495,8 +506,8 @@ BEGIN
 
             --? scd fields
             BinLocation
-        INTO #temp_modified
-        from #temp_origin a
+        INTO temp_modified
+        from temp_origin a
         where StockItemID in (
             select StockItemID
         from DimStockItems
@@ -509,11 +520,11 @@ BEGIN
         SET BinLocationEffectiveDate = CONVERT(DATE, GETDATE()),
             OriginalBinLocation = CurrentBinLocation,
             CurrentBinLocation = b.BinLocation
-        FROM DimStockItems a inner join #temp_modified b
+        FROM DimStockItems a inner join temp_modified b
             on a.StockItemID = b.StockItemID
         where a.StockItemID in (
             select StockItemID
-        from #temp_modified);
+        from temp_modified);
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -524,7 +535,7 @@ BEGIN
 
 
         --? Unit Price
-        TRUNCATE TABLE #temp_modified;
+        DROP TABLE temp_modified;
 
         select
             a.StockItemID,
@@ -553,8 +564,8 @@ BEGIN
 
             --? scd fields
             BinLocation
-        INTO #temp_modified
-        from #temp_origin a
+        INTO temp_modified
+        from temp_origin a
         where StockItemID in (
             select StockItemID
             from DimStockItems
@@ -567,11 +578,11 @@ BEGIN
         SET UnitPriceEffectiveDate = CONVERT(DATE, GETDATE()),
             OriginalUnitPrice = OriginalUnitPrice,
             CurrentUnitPrice = b.CurrentUnitPrice
-        FROM DimStockItems a inner join #temp_modified b
+        FROM DimStockItems a inner join temp_modified b
             on a.StockItemID = b.StockItemID
         where a.StockItemID in (
             select StockItemID
-        from #temp_modified);
+        from temp_modified);
 
         exec [AddDimensionLog] 
         @procedure_name = 'SCD3_DimStockItems',
@@ -580,10 +591,8 @@ BEGIN
         @Datetime = @CURRENT_DATETIME,
         @AffectedRowsNumber = @@ROWCOUNT
 
-
-        DROP TABLE #temp_modified;
-        DROP TABLE #temp_origin;
     END
+
 
 END
 
@@ -658,17 +667,71 @@ BEGIN
     IF @does_it_have_unknown_record = 0
     BEGIN
         INSERT INTO DimStockItems (
-            StockItemID,StockItemName,
-            SupplierID,Brand,Size,IsChillerStock,
-            Barcode,ColorID,ColorName,
-            UnitPackageTypeID,UnitPackageTypeName,OuterPackageTypeID,
-            OuterPackageTypeName,TaxRate,UnitPrice,
-            RecommendedRetailPrice,TypicalWeightPerUnit,LastCostPrice,
-            QuantityOnHand,LastStocktakeQuantity,TargetStockLevel,
-            ReorderLevel,OriginalBinLocation,CurrentBinLocation,
-            EffectiveDate
+            StockItemID,
+            StockItemName,
+            SupplierID,
+            SupplierName,
+            Brand,
+            Size,
+            IsChillerStock,
+            Barcode,
+            ColorID,
+            ColorName,
+            UnitPackageTypeID,
+            UnitPackageTypeName,
+            OuterPackageTypeID,
+            OuterPackageTypeName,
+            TaxRate,
+
+            OriginalUnitPrice,
+            CurrentUnitPrice,
+            UnitPriceEffectiveDate,
+
+            RecommendedRetailPrice,
+            TypicalWeightPerUnit,
+            LastCostPrice,
+            QuantityOnHand,
+            LastStocktakeQuantity,
+            TargetStockLevel,
+            ReorderLevel,
+
+            OriginalBinLocation,
+            CurrentBinLocation,
+            BinLocationEffectiveDate
         )
-        VALUES(-1,'UNKNOWN',-1,NULL,NULL,0,NULL,-1,'UNKNOWN',-1,'UNKNOWN',-1,'UNKNOWN',0,0,0,0,0,-1,-1,-1,-1,'UNKNOWN','UNKNOWN','2012-12-31')
+        VALUES(
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            -1,
+            'UNKNOWN',
+            0,
+
+            0,
+            0,
+            '2012-12-31',
+
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+
+            'UNKNOWN',
+            'UNKNOWN',
+            '2012-12-31'
+        )
     END
 
 END

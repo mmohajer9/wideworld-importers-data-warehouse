@@ -11,7 +11,7 @@
     - [x] Sales
     - [ ] Purchase
 3. **Final Dimensions + SCD and ETL**
-    - [ ] Warehouse
+    - [x] Warehouse
     - [x] Sales
     - [ ] Purchase
 4. **Final Facts + ETL**
