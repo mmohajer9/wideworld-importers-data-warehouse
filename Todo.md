@@ -30,7 +30,7 @@
      - [x] Facts
    - tmp in incremental approach should be moved inside the while
      - [x] Staging Area
-     - [ ] Facts
+     - [x] Facts
    - Bit fields should be nvarchar with value 'Yes' or 'No'
      - [x] Staging Area
      - [ ] Dimensions
