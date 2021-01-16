@@ -37,8 +37,16 @@
    - Purchase
      - [ ] Dimensions
      - [ ] Facts
-6. **Data Warehouse Metadata**
+6. **Data Warehouse Metadata and other stuffs**
    - Adding description to the tables properties
+     - [ ] Warehouse
+     - [ ] Sales
+     - [ ] Purchase
+   - Use partitioning
+     - [ ] Warehouse
+     - [ ] Sales
+     - [ ] Purchase
+   - Adding indexes to appropriate tables
      - [ ] Warehouse
      - [ ] Sales
      - [ ] Purchase
@@ -47,6 +55,8 @@
    - [ ] SSIS (**Up to 1 pts**)
    - [ ] SSRS (**Up to 0.5 pts**)
    - [ ] Using Job (**Up to 0.5 pts**)
+
+---
 
 ## Mohammad Mahdi Mohajer
 
@@ -57,16 +67,3 @@
 2. **Remaining Works**
    - [ ] ETL For Facts
    - [ ] Optional Parts of the project
-
-## Mohammad Derakhshan
-
-### Sales Mart
-
-1. **Title Of Your Work**
-   - [ ] Todo1
-     - [ ] Part1
-     - [x] Part2
-   - [ ] Todo2
-   - [ ] Todo3
-
-## Javad Taherikia (useless bitch :|)
