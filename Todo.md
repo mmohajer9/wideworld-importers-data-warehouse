@@ -48,6 +48,7 @@
      - [ ] Dimensions
      - [ ] Facts
    - [ ] ETL For Facts
+   - [ ] Data Warehouse Metadata
    - [ ] Optional Parts of the project
 
 ## Mohammad Derakhshan
