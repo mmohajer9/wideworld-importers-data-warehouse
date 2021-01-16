@@ -53,7 +53,7 @@ begin
 				AmountExcludingTax,TaxAmount,TransactionAmount,profit from TMP;
 
 		
-		insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
+		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
 			select 'insert', 'FactTransaction',getdate(),tmp.TransactionID,null from TMP;
 		
 		truncate table TMP;
@@ -133,6 +133,9 @@ begin
 		TotalPurchasedTax,lastBuyDateKey,InActiveDayCount)
 		select TimeKey,CustomerKey,PeopleKey,TotalpurchasePrice,TotalNumberOfStock,TotalRetrivedProfit,
 		TotalPurchasedTax,lastBuyDateKey,InActiveDayCount from TMP
+
+		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
+		select 'insert', 'FactPeriodict',getdate(),tmp.CustomerKey,null from TMP;
 
 		truncate table tmp
 	end

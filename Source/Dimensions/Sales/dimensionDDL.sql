@@ -4,6 +4,21 @@ use [WWI-DW]
 
 
 
+--***************************************************************** START LogSales AREA*************************
+IF OBJECT_ID('dbo.LogSales', 'U') IS NOT NULL
+drop table LogSales
+create table LogSales(
+	Id bigint IDENTITY(1,1) primary key,
+	ActionName nvarchar(30),
+	TableName nvarchar(100),
+	date date,
+	RecordId	int,
+	RecordSurrogateKey int null)
+Go
+--***************************************************************** START LogSales AREA*************************
+
+
+
 
 --***************************************************************** START CUSTOMER DIMENTION AREA*************************
 ;----------------customer dim table---------------------------

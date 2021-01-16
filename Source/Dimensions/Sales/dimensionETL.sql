@@ -21,7 +21,7 @@ Begin
 	DimInvoice.ReceivedBy IS NULL AND Invoice.ConfirmedReceivedBy <> NULL
 
 
-	insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId)
+	insert into LogSales(ActionName,TableName,date,RecordId)
 	select 'delete','DimInvoice',getdate(),DimInvoice.InvoiceKey from DimInvoice where InvoiceKey in(select tmp.ID from TMP)
 	delete from DimInvoice where DimInvoice.InvoiceKey IN (select ID From TMP)
 
@@ -49,7 +49,7 @@ Begin
 		where Invoice.InvoiceID NOT IN (select ID From TMP)
 
 	
-	insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId)
+	insert into LogSales(ActionName,TableName,date,RecordId)
 	select 'insert','DimInvoice',getdate(),DimInvoice.InvoiceKey from DimInvoice where InvoiceKey Not in(select tmp.ID from TMP)
 
 	DROP TABLE TMP
@@ -112,7 +112,7 @@ BEGIN
 		UPDATE DimCustomer SET CurrentFlag = 0 , EndDate = getdate()
 			WHERE CustomerID IN (SELECT ID FROM TMP_ID)
 
-		insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
+		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
 		select 'update','DimCustomer',getdate(), DimCustomer.CustomerID,DimCustomer.CustomerKey 
 		from DimCustomer where DimCustomer.CustomerID  in(select ID from TMP_ID)
 
@@ -128,7 +128,7 @@ BEGIN
 							PrimaryContactName, PhoneNumber, NULL, getdate(), 1 
 		FROM TMP WHERE CustomerID IN (SELECT distinct ID FROM TMP_ID)
 
-		insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
+		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
 		select 'insert','DimCustomer',getdate(), DimCustomer.CustomerID,DimCustomer.CustomerKey 
 		from DimCustomer where DimCustomer.CustomerID  in(select ID from TMP_ID)
 
@@ -197,7 +197,7 @@ BEGIN
 	PhoneEffectiveDate = @today
 	where DimPeople.PeopleKey IN (select PeopleKey from tmp)
 
-	insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId)
+	insert into LogSales(ActionName,TableName,date,RecordId)
 		select 'update','DimPeople',getdate(), tmp.PeopleKey from tmp
 	truncate table tmp
 
@@ -210,7 +210,7 @@ BEGIN
 	EmailEffectiveDate = @today
 	where DimPeople.PeopleKey IN (select PeopleKey from tmp)
 
-	insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId)
+	insert into LogSales(ActionName,TableName,date,RecordId)
 		select 'update','DimPeople',getdate(), tmp.PeopleKey from tmp
 	truncate table tmp
 
@@ -222,7 +222,7 @@ BEGIN
 		select PersonID,FullName,PreferredName,IsEmployee,IsSalesPerson,PhoneNumber,NULL,
 		@today,FaxNumber,EmailAddress,NULL,@today from [WWI-Staging].dbo.StagingPeople as People where People.PersonID not in (select tmp.PeopleKey From tmp)
 
-	insert into [WWI-Staging].dbo.LogSales(ActionName,TableName,date,RecordId)
+	insert into LogSales(ActionName,TableName,date,RecordId)
 		select 'insert','DimPeople',getdate(), DimPeople.PeopleKey
 		from DimPeople where DimPeople.PeopleKey  not in (select tmp.PeopleKey From tmp)
 
