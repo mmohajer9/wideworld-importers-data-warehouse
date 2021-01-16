@@ -53,12 +53,10 @@ create table FactPeriodict(
 	PeopleKey int ,
 	TotalpurchasePrice int,
 	TotalNumberOfStock int,
-	MaxRepeatedPurchasedGoodsName nvarchar(200) null,
-	MaxRepeatedNumberPurchasedGoods int null,
 	TotalRetrivedProfit int,
 	TotalPurchasedTax int,
 	InActiveDayCount int,
-	lastBuyDate date
+	lastBuyDateKey int
 )
 Go
 
