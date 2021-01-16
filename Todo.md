@@ -54,8 +54,6 @@
 
 ### Sales Mart
 
-> **Fill your todo and your latest mart state Mohammad jan :)**
-
 1. **Title Of Your Work**
    - [ ] Todo1
      - [ ] Part1
