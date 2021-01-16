@@ -33,15 +33,15 @@
      - [x] Facts
    - Bit fields should be nvarchar with value 'Yes' or 'No'
      - [x] Staging Area
-     - [ ] Dimensions
-     - [ ] Facts
+     - [x] Dimensions
+     - [x] Facts
    - Bit field and id field should have description or name field beside
      - [x] Staging Area
-     - [ ] Dimensions
-     - [ ] Facts
+     - [x] Dimensions
+     - [x] Facts
    - [x] Stage area should be seperated from the main datawarehouse and source
-   - [ ] DimStockItem ----> add supplierName beside supplier id
-   - [ ] Add SCD3 for unit_price
+   - [x] DimStockItem ----> add supplierName beside supplier id
+   - [x] Add SCD3 for unit_price
    - [ ] Add some better measure fields for your facts
 2. **Remaining Works**
    - [ ] ETL Documentation

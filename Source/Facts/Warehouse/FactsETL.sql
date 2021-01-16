@@ -84,7 +84,7 @@ BEGIN
             TimeKey,
             Quantity
 
-        FROM StagingStockItemTransactions a
+        FROM [WWI-Staging].dbo.StagingStockItemTransactions a
             LEFT OUTER JOIN DimStockItems b on (a.StockItemID = b.StockItemID)
             LEFT OUTER JOIN DimTime c on (a.TransactionOccurredWhen = c.FullDateAlternateKey)
             LEFT OUTER JOIN DimCustomer d on (d.CustomerID = a.CustomerID)
