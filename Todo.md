@@ -7,7 +7,7 @@
    - [x] Sales
    - [x] Purchase
 2. **Final Design of Data Warehouse**
-   - [ ] Warehouse
+   - [x] Warehouse
    - [x] Sales
    - [ ] Purchase
 3. **Final Dimensions + SCD and ETL**
