@@ -94,12 +94,13 @@ begin
 		declare @timekey int = (select TimeKey From DimTime where CONVERT(DATE,DimTime.FullDateAlternateKey)= @max_date);
 
 		with Transactions (CustomerKey,TotalpurchasePrice,TotalRetrivedProfit,TotalPurchasedTax) AS(
-			select CustomerKey, SUM(TransactionAmount), SUM(TransactionProfit), SUM(TaxAmount)
+			select CustomerKey, SUM(ISNULL(TransactionAmount,0)), SUM(ISNULL(TransactionProfit,0)),
+			SUM(ISNULL(TaxAmount,0))
 			from FactTransaction JOIN DimTime ON DimTime.TimeKey = FactTransaction.TimeKey
 			AND DimTime.TimeKey = @timekey
 			group by FactTransaction.CustomerKey
 		),Quantity(CustomerKey , items) AS(
-			select DimCustomer.CustomerKey, SUM(Quantity) FROM DimCustomer
+			select DimCustomer.CustomerKey, SUM(ISNULL(Quantity,0)) FROM DimCustomer
 			Left Join FactTransaction on FactTransaction.CustomerKey =  DimCustomer.CustomerKey
 			left JOIN [WWI-Staging].dbo.StagingInvoiceLines As Line ON FactTransaction.InvoiceKey = Line.InvoiceID
 			where DimCustomer.CurrentFlag=1 and  FactTransaction.TimeKey = @timekey 
@@ -110,18 +111,18 @@ begin
 		ISNULL(Transactions.TotalpurchasePrice,0), ISNULL(Quantity.items,0), ISNULL(Transactions.TotalRetrivedProfit,0),
 		ISNULL(Transactions.TotalPurchasedTax,0),
 		ISNULL(
-			(select distinct TimeKey from FactTransaction where CustomerKey = Quantity.CustomerKey AND TimeKey = @timekey),
+			(select distinct TimeKey from FactTransaction where CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
 			ISNULL(
 				(select lastBuyDateKey from FactPeriodict where TimeKey = (select TimeKey FROM DimTime where 
 					Convert(DATE,FullDateAlternateKey) = DATEADD(dd, -1, @max_date)) 
-						AND FactPeriodict.CustomerKey =Quantity.CustomerKey),0)
+						AND FactPeriodict.CustomerKey =DimCustomer.CustomerKey),0)
 				),
 		ISNULL(
 			(select Distinct 0 from FactTransaction where FactTransaction.CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
 			ISNULL(
 				(select InActiveDayCount + 1 from FactPeriodict where TimeKey = (select TimeKey FROM DimTime 
 				where Convert(DATE,FullDateAlternateKey) = DATEADD(dd, -1, @max_date)) 
-				AND FactPeriodict.CustomerKey=DimCustomer.CustomerKey),0)
+				AND FactPeriodict.CustomerKey=DimCustomer.CustomerKey),1)
 			)
 		from DimCustomer 
 		left JOIN Quantity On DimCustomer.CustomerKey = Quantity.CustomerKey
