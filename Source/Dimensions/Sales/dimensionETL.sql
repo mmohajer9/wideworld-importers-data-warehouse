@@ -1,9 +1,9 @@
 use [WWI-DW]
 
-Go
 
 
 --***************************************************************** START Invoice DIMENTION AREA*************************
+Go
 CREATE OR ALTER  Procedure FillDimInvoice as
 Begin
 	
@@ -55,6 +55,14 @@ Begin
 	DROP TABLE TMP
 END
 GO
+
+
+create or alter procedure FillDimInvoiceFirstLoad as 
+begin
+	truncate table DimInvoice
+	exec FillDimInvoice
+end
+Go
 --***************************************************************** END Invoice DIMENTION AREA*************************
 
 
@@ -136,6 +144,14 @@ BEGIN
 		DROP Table TMP_ID
 END
 GO
+
+
+create or alter procedure FillDimCustomerFirstLoad as 
+begin
+	truncate table DimCustomer
+	exec FillDimCustomer
+end
+Go
 --***************************************************************** END CUSTOMER DIMENTION AREA*************************
 
 
@@ -166,6 +182,13 @@ BEGIN
 		select PaymentMethodID, PaymentMethodName from [WWI-Staging].dbo.StagingPaymentMethods where PaymentMethodID not in (select id from tmp)
 	DROP TABLE tmp	
 END
+Go
+
+create or alter procedure FillDimPaymentFirstLoad as 
+begin
+	truncate table DimPayment
+	exec FillDimPayment
+end
 Go
 --***************************************************************** END PAYMENT DIMENTION AREA*************************
 
@@ -229,19 +252,13 @@ BEGIN
 	drop table tmp
 END
 Go
+
+
+create or alter procedure FillDimPeopleFirstLoad as 
+begin
+	truncate table DimPeople
+	exec FillDimPeople
+end
+Go
 --***************************************************************** END PEOPLE DIMENTION AREA*************************
 
-
-
-
-
---^ also add this part :
-
-CREATE OR ALTER PROCEDURE SALES_DIMENSIONS_SCD_ETL
-AS
-BEGIN
-	EXECUTE FillDimInvoice;
-	EXECUTE FillDimCustomer;
-	EXECUTE FillDimPayment;
-	EXECUTE FillDimPeople;
-END

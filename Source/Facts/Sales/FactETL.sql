@@ -64,7 +64,12 @@ begin
 end
 GO
 
-
+create or alter procedure FillFactTransactionFirstLoad (@date date) AS
+begin 
+	truncate table FactTransaction
+	exec FillFactTransaction @date
+end
+GO
 
 -----------------------Periodic Fact------------------------------------
 Go
@@ -140,5 +145,12 @@ begin
 		truncate table tmp
 	end
 	drop table tmp
+end
+GO
+
+create or alter procedure FillFactPeriodicFirstLoad (@date date) AS
+begin 
+	truncate table FactPeriodict
+	exec FillFactPeriodic @date
 end
 GO
