@@ -81,23 +81,7 @@ CREATE TABLE dbo.FactDailyStockItemTran
     -- FOREIGN KEY 
     -- REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimPackageTypes(PackageTypeID),
-
-    OuterPackageTypeID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimPackageTypes(PackageTypeID),
-
-    ColorID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimColors(ColorID),
-
-    SupplierID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimSuplier(SupplierID),
-
-    EffectiveDate INT, 
+    TimeKey INT, 
     -- FOREIGN KEY 
     -- REFERENCES DimTime(TimeKey),
 
@@ -107,10 +91,18 @@ CREATE TABLE dbo.FactDailyStockItemTran
     TotalEntryMovementQuantityInDay [NUMERIC](20 , 3),
     TotalWriteOffMovementQuantityInDay [NUMERIC](20 , 3),
 
-    TotalDaysOffCountTillToday INT,
 
     MaximumMovementQuantityInDay [NUMERIC](20 , 3),
     MinimumMovementQuantityInDay [NUMERIC](20 , 3),
+
+    MaximumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
+    MinimumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
+
+    RemainingMovementQuantityInThisDay [NUMERIC](20 , 3), --^ depends on today + previous day
+
+    TotalDaysOffCountTillToday INT, --^ depends on today + previous day
+
+    AverageMovementQuantityTillThisDay [NUMERIC](20 , 3) --^ depends on today + previous day
     
 
 );
@@ -134,30 +126,21 @@ CREATE TABLE dbo.FactAccStockItemTran
     -- FOREIGN KEY 
     -- REFERENCES DimStockItems(StockItemID),
 
-    UnitPackageTypeID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimPackageTypes(PackageTypeID),
-
-    OuterPackageTypeID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimPackageTypes(PackageTypeID),
-
-    ColorID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimColors(ColorID),
-
-    SupplierID INT, 
-    -- FOREIGN KEY 
-    -- REFERENCES DimSuplier(SupplierID),
-
-
     --^ MEASURES --> Acc Fact
 
     TotalMovementQuantity [NUMERIC](20 , 3),
     TotalEntryMovementQuantity [NUMERIC](20 , 3),
     TotalWriteOffMovementQuantity [NUMERIC](20 , 3),
     
-    TotalDaysOffCount INT,
+    MaximumMovementQuantity [NUMERIC](20 , 3),
+    MinimumMovementQuantity [NUMERIC](20 , 3),
+
+    MaximumRemainingMovementQuantity [NUMERIC](20 , 3),
+    MinimumRemainingMovementQuantity [NUMERIC](20 , 3),
+
+    AverageMovementQuantity [NUMERIC](20 , 3),
+
+    TotalDaysOffCount INT, --^ kole roozaye bedone amalkard in stockitem dar kole doran
 );
 GO
 
