@@ -44,11 +44,11 @@
      - [ ] Purchase
    - Use partitioning
      - [ ] Warehouse
-     - [ ] Sales
+     - [x] Sales
      - [ ] Purchase
    - Adding indexes to appropriate tables
      - [ ] Warehouse
-     - [ ] Sales
+     - [x] Sales
      - [ ] Purchase
 7. **>> OPTIONAL PART :D <<**
    - [ ] SSAS + OLAP Engine For Every Mart (**Up to 2 pts**)

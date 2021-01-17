@@ -183,6 +183,13 @@ begin
 	drop table tmp
 end
 Go
+
+create or alter procedure FillStagingInvoiceLineFirstLoad as 
+begin
+	truncate table StagingInvoiceLines
+	exec FillStagingInvoiceLine
+end
+Go
 --***************************** end Staging InvoiceLine***************************************
 
 
@@ -205,6 +212,13 @@ begin
 			[OrderDate],[ExpectedDeliveryDate],[CustomerPurchaseOrderNumber],[IsUndersupplyBackordered],[DeliveryInstructions]
 		from [WideWorldImporters].Sales.Orders where OrderID not in (select id from tmp)
 	drop table tmp
+end
+Go
+
+create or alter procedure FillStagingOrdersFirstLoad as 
+begin
+	truncate table StagingOrders
+	exec FillStagingOrders
 end
 Go
 --***************************** end Staging Orders***************************************
@@ -231,26 +245,11 @@ begin
 		end
 end
 GO
+
+create or alter procedure FillStagingCustomerTransactionsFirstLoad as 
+begin
+	truncate table StagingCustomerTransactions
+	exec FillStagingCustomerTransactions
+end
+Go
 --***************************** end Staging Customer Transactions**********************************************
-
-
-
---^ also add this part :
-
-CREATE OR ALTER PROCEDURE FILL_SALES_STAGING_AREA
-AS
-BEGIN
-	EXEC FillStagingPeople;
-	EXEC FillStagingPaymentMethods;
-	EXEC FillStagingDeliveryMethods;
-	EXEC FillStagingCities;
-	EXEC FillStagingStateProvinces;
-	EXEC FillStagingBuyingGroups;
-	EXEC FillStagingCustomerCategories;
-	EXEC FillStagingCustomers;
-	EXEC FillStagingInvoices;
-	EXEC FillStagingInvoiceLine;
-	EXEC FillStagingOrders;
-	EXEC FillStagingCustomerTransactions;
-END
-
