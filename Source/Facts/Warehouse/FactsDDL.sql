@@ -97,7 +97,6 @@ CREATE TABLE dbo.FactDailyStockItemTran
 
     MaximumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
     MinimumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
-
     RemainingMovementQuantityInThisDay [NUMERIC](20 , 3), --^ depends on today + previous day
 
     TotalDaysOffCountTillToday INT, --^ depends on today + previous day

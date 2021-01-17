@@ -62,12 +62,18 @@ AS
 BEGIN
 
     --? getting the the time key of the latest item that is added to fact
-    DECLARE @LastAddedTimeKey INT = (SELECT max(TransactionDate)
-    FROM FactStockItemTran)
+    DECLARE @LastAddedTimeKey INT = (
+        SELECT max(TransactionDate)
+        FROM FactStockItemTran
+    )
     --^ getting the date of the latest item that is added to fact , if it is null --> 2012-12-31 default value
-    DECLARE @LastAddedDate DATE = ISNULL((SELECT FullDateAlternateKey
-    FROM DimTime
-    WHERE TimeKey = @LastAddedTimeKey), '2012-12-31');
+    DECLARE @LastAddedDate DATE = ISNULL(
+        (
+            SELECT FullDateAlternateKey
+            FROM DimTime
+            WHERE TimeKey = @LastAddedTimeKey
+        )
+        , '2012-12-31');
 
     DECLARE @CURRENT_DATETIME DATETIME2;
 
@@ -101,7 +107,11 @@ BEGIN
 
         --? go to the next day
         SET @LastAddedDate = DATEADD(dd, 1, @LastAddedDate)
-        SET @LastAddedTimeKey = @LastAddedTimeKey + 1;
+        SET @LastAddedTimeKey = (
+            SELECT TimeKey
+            FROM DimTime
+            WHERE FullDateAlternateKey = @LastAddedDate
+        );
 
         --^ inserting into the temporary table then join then bulk insert into fact
         INSERT INTO temp_fact_stock_item_transactions
@@ -268,7 +278,7 @@ BEGIN
             FROM DimStockItems a 
             LEFT OUTER JOIN T4 b on (a.StockItemID = b.StockItemID)  
             LEFT OUTER JOIN RemainingStockItemQuantityPerDay c on (a.StockItemID = c.StockItemID and c.Date = DATEADD(dd, -1, @LastAddedDate))
-            WHERE a.StockItemID != -1
+            WHERE a.StockItemID != -1;
     
     END
 
@@ -285,8 +295,10 @@ AS
 BEGIN
 
     --? getting the the time key of the latest item that is added to fact
-    DECLARE @LastAddedTimeKey INT = (SELECT max(TimeKey)
-    FROM FactDailyStockItemTran)
+    DECLARE @LastAddedTimeKey INT = (
+        SELECT max(TimeKey)
+        FROM FactDailyStockItemTran
+    )
     --^ getting the date of the latest item that is added to fact , if it is null --> 2012-12-31 default value
     DECLARE @LastAddedDate DATE = ISNULL((SELECT FullDateAlternateKey
     FROM DimTime
@@ -353,7 +365,6 @@ BEGIN
 
         MaximumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
         MinimumRemainingMovementQuantityInDay [NUMERIC](20 , 3), --^ depends on today + previous day
-
         RemainingMovementQuantityInThisDay [NUMERIC](20 , 3), --^ depends on today + previous day
     );
 
@@ -407,8 +418,12 @@ BEGIN
         TRUNCATE TABLE temp5_fact_daily;
         
         --? go to the next day
-        SET @LastAddedDate = DATEADD(dd, 1, @LastAddedDate);
-        SET @LastAddedTimeKey = @LastAddedTimeKey + 1;
+        SET @LastAddedDate = DATEADD(dd, 1, @LastAddedDate)
+        SET @LastAddedTimeKey = (
+            SELECT TimeKey
+            FROM DimTime
+            WHERE FullDateAlternateKey = @LastAddedDate
+        );
 
         --^ inserting into the temporary table then join then bulk insert into fact
 
