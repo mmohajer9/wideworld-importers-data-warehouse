@@ -20,8 +20,8 @@
      - [ ] Periodic Snapshot Daily
      - [ ] Accumulative
    - Sales
-     - [ ] Transactional
-     - [ ] Periodic Snapshot Daily
+     - [x] Transactional
+     - [x] Periodic Snapshot Daily
      - [ ] Accumulative
    - Purchase
      - [ ] Transactional
@@ -44,11 +44,11 @@
      - [ ] Purchase
    - Use partitioning
      - [ ] Warehouse
-     - [ ] Sales
+     - [x] Sales
      - [ ] Purchase
    - Adding indexes to appropriate tables
      - [ ] Warehouse
-     - [ ] Sales
+     - [x] Sales
      - [ ] Purchase
 7. **>> OPTIONAL PART :D <<**
    - [ ] SSAS + OLAP Engine For Every Mart (**Up to 2 pts**)
