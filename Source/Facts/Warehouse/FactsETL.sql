@@ -292,25 +292,25 @@ CREATE OR ALTER PROCEDURE FillFactDailyStockItem
 AS
 BEGIN
 
-    DECLARE @LastAddedTimeKeyInTransactionalFact INT = (
-        SELECT max(TransactionDate)
-        FROM FactStockItemTran
-    )
+    -- DECLARE @LastAddedTimeKeyInTransactionalFact INT = (
+    --     SELECT max(TransactionDate)
+    --     FROM FactStockItemTran
+    -- )
 
-    DECLARE @LastAddedDateInTransactionalFact DATE = ISNULL(
-        (
-            SELECT FullDateAlternateKey
-            FROM DimTime
-            WHERE TimeKey = @LastAddedTimeKeyInTransactionalFact
-        )
-        , '2012-12-31');
+    -- DECLARE @LastAddedDateInTransactionalFact DATE = ISNULL(
+    --     (
+    --         SELECT FullDateAlternateKey
+    --         FROM DimTime
+    --         WHERE TimeKey = @LastAddedTimeKeyInTransactionalFact
+    --     )
+    --     , '2012-12-31');
 
-    --? exit the proceu
-    IF @to_date > @LastAddedDateInTransactionalFact
-    BEGIN
-        PRINT 'First Fill The Transactional Fact Till The Given Date Then Run This Procedure for Periodic Daily Snapshot';
-        RETURN;
-    END
+    -- --? exit the proceu
+    -- IF @to_date > @LastAddedDateInTransactionalFact
+    -- BEGIN
+    --     PRINT 'First Fill The Transactional Fact Till The Given Date Then Run This Procedure for Periodic Daily Snapshot';
+    --     RETURN;
+    -- END
 
     --? getting the the time key of the latest item that is added to fact
     DECLARE @LastAddedTimeKey INT = (
@@ -718,13 +718,15 @@ GO
 --*--------------------------------------------------------------------------------------------------------------------*--
 
 CREATE OR ALTER PROCEDURE FillFactAccStockItem
-    @to_date DATE
 AS
 BEGIN
 
     --? getting the the time key of the latest item that is added to fact
-    DECLARE @LastAddedTimeKey INT = (SELECT max(TransactionDate)
-    FROM FactStockItemTran)
+    DECLARE @LastAddedTimeKey INT = (
+        SELECT max(TimeKey)
+        FROM FactDailyStockItemTran
+    )
+
     --^ getting the date of the latest item that is added to fact , if it is null --> 2012-12-31 default value
     DECLARE @LastAddedDate DATE = ISNULL((SELECT FullDateAlternateKey
     FROM DimTime
@@ -734,44 +736,59 @@ BEGIN
 
     --^-- starting the process --^--
 
-    WHILE(@LastAddedDate < @to_date) 
-    BEGIN
-
-        TRUNCATE TABLE temp_fact_stock_item_daily;
-        --? go to the next day
-        SET @LastAddedDate = DATEADD(dd, 1, @LastAddedDate)
-        SET @LastAddedTimeKey = @LastAddedTimeKey + 1;
+    --^ inserting into the temporary table then join then bulk insert into fact
 
 
-        --^ inserting into the temporary table then join then bulk insert into fact
-        -- INSERT INTO temp_fact_stock_item_daily
-        --     (
-        --         ...
-        --     )
-        -- SELECT ...
-        -- FROM ...
+    -- Create a new table called 'temp_fact_stock_item_acc' in schema 'dbo'
+    -- Drop the table if it already exists
+    IF OBJECT_ID('dbo.temp_fact_stock_item_acc', 'U') IS NOT NULL
+    DROP TABLE dbo.temp_fact_stock_item_acc;
+    -- Create the table in the specified schema
+    CREATE TABLE temp_fact_stock_item_acc
+    (
+        StockItemID INT, 
+        TotalRemainingMovementQuantity [NUMERIC](20 , 3),
+        TotalDaysOffCount INT,
+        TransactionsCount INT,
+        AverageMovementQuantity [NUMERIC](20 , 3),
+    );
 
-        
-        SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
-        -- INSERT INTO FactDailyStockItemTran
-        --     (
-        --         ...
-        --     )
-        -- SELECT
-        --     ...
+    INSERT INTO temp_fact_stock_item_acc
+    SELECT
+        StockItemID,
+        RemainingMovementQuantityInThisDay,
+        TotalDaysOffCountTillToday,
+        TransactionsCount,
+        AverageMovementQuantityTillThisDay
+    FROM FactDailyStockItemTran
+    WHERE TimeKey = @LastAddedTimeKey;
 
-        -- FROM temp_fact_stock_item_daily
+    
+    SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
-        --? LOG
-        EXEC AddFactLog
-            @procedure_name = 'FillFactDailyStockItem',
-            @action = 'INSERT',
-            @FactName = 'FactDailyStockItemTran',
-            @Datetime = @CURRENT_DATETIME,
-            @AffectedRowsNumber = @@ROWCOUNT;
 
-    END
+    TRUNCATE TABLE FactAccStockItemTran;
+
+    INSERT INTO FactAccStockItemTran
+    SELECT
+        StockItemID,
+        TotalRemainingMovementQuantity,
+        TotalDaysOffCount,
+        TransactionsCount,
+        AverageMovementQuantity
+
+    FROM temp_fact_stock_item_acc;
+
+    --? LOG
+    EXEC AddFactLog
+        @procedure_name = 'FillFactAccStockItem',
+        @action = 'INSERT',
+        @FactName = 'FactAccStockItemTran',
+        @Datetime = @CURRENT_DATETIME,
+        @AffectedRowsNumber = @@ROWCOUNT;
+
+
 
 
 END
@@ -779,3 +796,30 @@ END
 GO
 
 --*--------------------------------------------------------------------------------------------------------------------*--
+
+
+
+CREATE OR ALTER PROCEDURE FILL_WAREHOUSE_FACTS
+    @to_date DATE,
+    @FirstLoad BIT = 0
+AS
+BEGIN
+
+    IF @FirstLoad = 1
+    BEGIN
+        TRUNCATE TABLE RemainingStockItemQuantityPerDay;
+        TRUNCATE TABLE TotalMovementQuantityForStockItemPerDay;
+        TRUNCATE TABLE TotalEntryMovementQuantityForStockItemPerDay;
+        TRUNCATE TABLE TotalWriteOffMovementQuantityForStockItemPerDay;
+        TRUNCATE TABLE FactStockItemTran;
+        TRUNCATE TABLE FactDailyStockItemTran;
+        TRUNCATE TABLE FactAccStockItemTran;
+    END
+
+    EXECUTE FillFactTransactionalStockItem @to_date = @to_date;
+    EXECUTE FillFactDailyStockItem @to_date = @to_date;
+    EXECUTE FillFactAccStockItem;
+
+END
+--------------------------------------------------------------------------------------------------------------
+GO

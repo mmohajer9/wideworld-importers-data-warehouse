@@ -18,7 +18,7 @@
    - Warehouse
      - [x] Transactional
      - [x] Periodic Snapshot Daily
-     - [ ] Accumulative
+     - [x] Accumulative
    - Sales
      - [x] Transactional
      - [x] Periodic Snapshot Daily

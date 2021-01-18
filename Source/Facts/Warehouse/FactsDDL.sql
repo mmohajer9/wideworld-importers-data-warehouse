@@ -129,21 +129,15 @@ CREATE TABLE dbo.FactAccStockItemTran
 
     --^ MEASURES --> Acc Fact
 
-    TotalMovementQuantity [NUMERIC](20 , 3),
-    TotalEntryMovementQuantity [NUMERIC](20 , 3),
-    TotalWriteOffMovementQuantity [NUMERIC](20 , 3),
-    
-    MaximumMovementQuantity [NUMERIC](20 , 3),
-    MinimumMovementQuantity [NUMERIC](20 , 3),
-
-    MaximumRemainingMovementQuantity [NUMERIC](20 , 3),
-    MinimumRemainingMovementQuantity [NUMERIC](20 , 3),
-
+    TotalRemainingMovementQuantity [NUMERIC](20 , 3),
+    TotalDaysOffCount INT, --^ kole roozaye bedone amalkard in stockitem dar kole doran
+    TransactionsCount INT,
     AverageMovementQuantity [NUMERIC](20 , 3),
 
-    TotalDaysOffCount INT, --^ kole roozaye bedone amalkard in stockitem dar kole doran
 );
 GO
 
 
-CREATE INDEX FactStockItemTranIndex ON FactStockItemTran(StockItemID , TransactionDate,CustomerKey,InvoiceKey,TransactionTypeID)
+CREATE INDEX FactStockItemTranIndex ON FactStockItemTran(StockItemID , TransactionDate,CustomerKey,InvoiceKey,TransactionTypeID);
+CREATE INDEX FactStockItemDailyIndex ON FactDailyStockItemTran(StockItemID , TimeKey);
+CREATE INDEX FactStockItemAccIndex ON FactAccStockItemTran(StockItemID);
