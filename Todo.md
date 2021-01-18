@@ -9,7 +9,7 @@
 2. **Final Design of Data Warehouse**
    - [x] Warehouse
    - [x] Sales
-   - [ ] Purchase
+   - [x] Purchase
 3. **Final Dimensions + SCD and ETL**
    - [x] Warehouse
    - [x] Sales
@@ -47,7 +47,7 @@
      - [x] Sales
      - [ ] Purchase
    - Adding indexes to appropriate tables
-     - [ ] Warehouse
+     - [x] Warehouse
      - [x] Sales
      - [ ] Purchase
 7. **>> OPTIONAL PART :D <<**
