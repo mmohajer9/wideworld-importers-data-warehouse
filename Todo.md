@@ -63,7 +63,7 @@
 ### Warehouse Mart
 
 1. **Edits and Modifications**
-   - [ ] Add some better measure fields for your facts
+   - [x] Add some better measure fields for your facts
 2. **Remaining Works**
-   - [ ] ETL For Facts
+   - [x] ETL For Facts
    - [ ] Optional Parts of the project
