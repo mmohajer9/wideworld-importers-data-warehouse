@@ -258,8 +258,6 @@ BEGIN
             FROM T3;
 
 
-        --????
-
         --? inserting the remaining quantity to RemainingStockItemQuantityPerDay
         WITH T4 (StockItemID,TotalMovementQuantityInDay)
             AS
@@ -294,11 +292,32 @@ CREATE OR ALTER PROCEDURE FillFactDailyStockItem
 AS
 BEGIN
 
+    DECLARE @LastAddedTimeKeyInTransactionalFact INT = (
+        SELECT max(TransactionDate)
+        FROM FactStockItemTran
+    )
+
+    DECLARE @LastAddedDateInTransactionalFact DATE = ISNULL(
+        (
+            SELECT FullDateAlternateKey
+            FROM DimTime
+            WHERE TimeKey = @LastAddedTimeKeyInTransactionalFact
+        )
+        , '2012-12-31');
+
+    --? exit the proceu
+    IF @to_date > @LastAddedDateInTransactionalFact
+    BEGIN
+        PRINT 'First Fill The Transactional Fact Till The Given Date Then Run This Procedure for Periodic Daily Snapshot';
+        RETURN;
+    END
+
     --? getting the the time key of the latest item that is added to fact
     DECLARE @LastAddedTimeKey INT = (
         SELECT max(TimeKey)
         FROM FactDailyStockItemTran
     )
+
     --^ getting the date of the latest item that is added to fact , if it is null --> 2012-12-31 default value
     DECLARE @LastAddedDate DATE = ISNULL((SELECT FullDateAlternateKey
     FROM DimTime
@@ -306,6 +325,20 @@ BEGIN
 
     DECLARE @CURRENT_DATETIME DATETIME2;
     
+
+    -- Create a new table called 'current_day_transactions' in schema 'dbo'
+    -- Drop the table if it already exists
+    IF OBJECT_ID('dbo.current_day_transactions', 'U') IS NOT NULL
+    DROP TABLE dbo.current_day_transactions;
+    -- Create the table in the specified schema
+    CREATE TABLE current_day_transactions
+    (
+        StockItemTransactionID INT,
+        StockItemID INT,
+        TransactionDate INT,
+        MovementQuantity [NUMERIC](20 , 3),
+        RemainingQuantityAfterThisTransaction [NUMERIC](20 , 3),
+    );
 
     -- Create a new table called 'temp1_fact_daily' in schema 'dbo'
     -- Drop the table if it already exists
@@ -401,8 +434,26 @@ BEGIN
         TimeKey INT, 
 
         --^ MEASURES --> Daily Fact
-
+        TransactionsCount INT,
         AverageMovementQuantityTillThisDay [NUMERIC](20 , 3) --^ depends on today + previous day
+    );
+
+    -- Create a new table called 'temp6_fact_daily' in schema 'dbo'
+    -- Drop the table if it already exists
+    IF OBJECT_ID('dbo.temp6_fact_daily', 'U') IS NOT NULL
+    DROP TABLE temp6_fact_daily;
+
+    -- Create the table in the specified schema
+    CREATE TABLE temp6_fact_daily
+    (
+        --^ FOREIGN KEYS
+
+        StockItemID INT, 
+        TimeKey INT, 
+
+        --^ MEASURES --> Daily Fact
+
+        AverageMovementQuantityInThisDay [NUMERIC](20 , 3) --^ depends on today
     );
 
     --^-- starting the process --^--
@@ -410,13 +461,18 @@ BEGIN
     WHILE(@LastAddedDate < @to_date) 
     BEGIN
 
+
+        
+
         --? first truncating the temp tables for each measure group
+        TRUNCATE TABLE current_day_transactions;
         TRUNCATE TABLE temp1_fact_daily;
         TRUNCATE TABLE temp2_fact_daily;
         TRUNCATE TABLE temp3_fact_daily;
         TRUNCATE TABLE temp4_fact_daily;
         TRUNCATE TABLE temp5_fact_daily;
-        
+        TRUNCATE TABLE temp6_fact_daily;
+
         --? go to the next day
         SET @LastAddedDate = DATEADD(dd, 1, @LastAddedDate)
         SET @LastAddedTimeKey = (
@@ -427,70 +483,175 @@ BEGIN
 
         --^ inserting into the temporary table then join then bulk insert into fact
 
+
+        --*---------------------------------------------* filling the temp0 here *------------------------------------------------------------------*--
+        WITH CTE as
+            (
+                select 
+                    StockItemTransactionID,
+                    StockItemID,
+                    TransactionDate,
+                    MovementQuantity,
+                    RemainingQuantityAfterThisTransaction
+                from FactStockItemTran
+                where TransactionDate = @LastAddedTimeKey
+            )
+            INSERT INTO current_day_transactions
+            SELECT 
+                    StockItemTransactionID,
+                    StockItemID,
+                    TransactionDate,
+                    MovementQuantity,
+                    RemainingQuantityAfterThisTransaction
+            FROM CTE;
         --*---------------------------------------------* filling the temp1 here *------------------------------------------------------------------*--
         WITH CTE (StockItemID , EffectiveDate , TotalMovementQuantityInDay , TotalEntryMovementQuantityInDay , TotalWriteOffMovementQuantityInDay)
-        AS
-        (
-            select a.StockItemID , a.Date as Date,
-            TotalMovementQuantityInDay , TotalEntryMovementQuantityInDay , TotalWriteOffMovementQuantityInDay
-            from [dbo].[TotalMovementQuantityForStockItemPerDay] a
-            LEFT OUTER join TotalEntryMovementQuantityForStockItemPerDay b on (a.StockItemID = b.StockItemID and a.Date = b.Date)
-            LEFT OUTER join TotalWriteOffMovementQuantityForStockItemPerDay c on (a.StockItemID = c.StockItemID and a.Date = c.Date)
-            where a.Date = @LastAddedDate
-        ),
-        Final
-        AS
-        (
-            SELECT	d.StockItemID as StockItemID,
-                    ISNULL(EffectiveDate,@LastAddedDate) as EffectiveDate,
-                    ISNULL(TotalMovementQuantityInDay,0) as TotalMovementQuantityInDay,
-                    ISNULL(TotalEntryMovementQuantityInDay,0) as TotalEntryMovementQuantityInDay,
-                    ISNULL(TotalWriteOffMovementQuantityInDay,0) as TotalWriteOffMovementQuantityInDay
-            FROM DimStockItems d LEFT OUTER JOIN CTE on (d.StockItemID = CTE.StockItemID)
-            where d.StockItemID != -1
-        )
-        INSERT INTO temp1_fact_daily
-        select 
-            StockItemID , TimeKey,
-            TotalMovementQuantityInDay,
-            TotalEntryMovementQuantityInDay,
-            TotalWriteOffMovementQuantityInDay
-        from Final a left outer join DimTime b 
-        on (a.EffectiveDate = b.FullDateAlternateKey)        
+            AS
+            (
+                select a.StockItemID , a.Date as Date,
+                TotalMovementQuantityInDay , TotalEntryMovementQuantityInDay , TotalWriteOffMovementQuantityInDay
+                from [dbo].[TotalMovementQuantityForStockItemPerDay] a
+                LEFT OUTER join TotalEntryMovementQuantityForStockItemPerDay b on (a.StockItemID = b.StockItemID and a.Date = b.Date)
+                LEFT OUTER join TotalWriteOffMovementQuantityForStockItemPerDay c on (a.StockItemID = c.StockItemID and a.Date = c.Date)
+                where a.Date = @LastAddedDate
+            ),
+            Final
+            AS
+            (
+                SELECT	d.StockItemID as StockItemID,
+                        ISNULL(EffectiveDate,@LastAddedDate) as EffectiveDate,
+                        ISNULL(TotalMovementQuantityInDay,0) as TotalMovementQuantityInDay,
+                        ISNULL(TotalEntryMovementQuantityInDay,0) as TotalEntryMovementQuantityInDay,
+                        ISNULL(TotalWriteOffMovementQuantityInDay,0) as TotalWriteOffMovementQuantityInDay
+                FROM DimStockItems d LEFT OUTER JOIN CTE on (d.StockItemID = CTE.StockItemID)
+                where d.StockItemID != -1
+            )
+            INSERT INTO temp1_fact_daily
+            select 
+                StockItemID , TimeKey,
+                TotalMovementQuantityInDay,
+                TotalEntryMovementQuantityInDay,
+                TotalWriteOffMovementQuantityInDay
+            from Final a left outer join DimTime b 
+            on (a.EffectiveDate = b.FullDateAlternateKey)        
         --*---------------------------------------------* filling the temp2 here *------------------------------------------------------------------*--
-        WITH CTE as
-        (
-        select 
-            StockItemTransactionID,StockItemID,
-            TransactionDate,MovementQuantity,
-            RemainingQuantityAfterThisTransaction
-        from FactStockItemTran
-        where TransactionDate = @LastAddedTimeKey
-        )
         INSERT INTO temp2_fact_daily
         SELECT 
             a.StockItemID as StockItemID, 
             ISNULL(TransactionDate , @LastAddedTimeKey) AS TimeKey, 
             ISNULL(MAX(MovementQuantity) , 0) AS MaximumMovementQuantityInDay,
             ISNULL(MIN(MovementQuantity) , 0) AS MinimumMovementQuantityInDay
-        FROM DimStockItems a LEFT OUTER JOIN CTE b on (a.StockItemID = b.StockItemID)
+        FROM DimStockItems a LEFT OUTER JOIN current_day_transactions b on (a.StockItemID = b.StockItemID)
         where a.StockItemID != -1
-        GROUP BY a.StockItemID , TransactionDate
+        GROUP BY a.StockItemID , TransactionDate;
         --*---------------------------------------------* filling the temp3 here *------------------------------------------------------------------*--
-        
-        
-        
+        WITH CTE as
+            (
+                SELECT 
+                    a.StockItemID, 
+                    ISNULL(TransactionDate , @LastAddedTimeKey) AS TimeKey, 
+                    MAX(RemainingQuantityAfterThisTransaction) as MaximumRemainingMovementQuantityInDay,
+                    MIN(RemainingQuantityAfterThisTransaction) as MinimumRemainingMovementQuantityInDay
+                FROM DimStockItems a 
+                LEFT OUTER JOIN current_day_transactions b on (a.StockItemID = b.StockItemID)
+                WHERE a.StockItemID != -1
+                GROUP BY a.StockItemID, TransactionDate
+            )
+        INSERT INTO temp3_fact_daily
+        select 
+            a.StockItemID,
+            TimeKey,
+            ISNULL(MaximumRemainingMovementQuantityInDay,c.RemainingStockItemQuantity) as MaximumRemainingMovementQuantityInDay,
+            ISNULL(MinimumRemainingMovementQuantityInDay,c.RemainingStockItemQuantity) as MinimumRemainingMovementQuantityInDay,
+            RemainingStockItemQuantity
+        FROM CTE a LEFT OUTER JOIN RemainingStockItemQuantityPerDay c 
+        ON (a.StockItemID = c.StockItemID AND c.Date = @LastAddedDate);      
         --*---------------------------------------------* filling the temp4 here *------------------------------------------------------------------*--
+        WITH CTE1 as
+            (
+                SELECT 
+                    a.StockItemID,
+                    ISNULL(TransactionDate , @LastAddedTimeKey) as TimeKey,
+                    MovementQuantity
+                FROM DimStockItems a 
+                LEFT OUTER JOIN current_day_transactions b on (a.StockItemID = b.StockItemID)
+                where a.StockItemID != -1
+            ),
+            CTE2 as
+            (
+                SELECT StockItemID , TimeKey , 
+                COUNT(MovementQuantity) as TransactionCount,
+                CASE COUNT(MovementQuantity)
+                    WHEN 0 then 'No' 
+                    else 'Yes' 
+                END as DoesItHaveTransactions
+                FROM CTE1
+                GROUP BY StockItemID , TimeKey
+            )
+        INSERT INTO temp4_fact_daily
+        SELECT 
+            a.StockItemID,
+            a.TimeKey,
+            CASE a.DoesItHaveTransactions
+                WHEN 'Yes' then 0
+                else ISNULL(B.TotalDaysOffCountTillToday + 1,1)
+            END as TotalDaysOffCountTillToday
+            FROM CTE2 a LEFT OUTER JOIN FactDailyStockItemTran b
+            ON (a.StockItemID = b.StockItemID and
+            b.TimeKey = (SELECT TimeKey From DimTime WHERE FullDateAlternateKey = DATEADD(dd, -1, @LastAddedDate)));
         --*---------------------------------------------* filling the temp5 here *------------------------------------------------------------------*--
-
-
-
-
-
-
-
-
-        --^ joining the temp1,2,3,4,5 and bulk insert into the fact table
+        WITH CTE as
+        (
+            select 
+                StockItemID,
+                TransactionDate as TimeKey,
+                COUNT(MovementQuantity) as TransactionsCount
+            from FactStockItemTran
+            where TransactionDate = @LastAddedTimeKey
+            GROUP BY StockItemID , TransactionDate
+        ),
+        T1 as
+        (
+            Select a.StockItemID,
+            ISNULL(b.TimeKey,@LastAddedTimeKey) as TimeKey , 
+            ISNULL(b.TransactionsCount , 0) + ISNULL(c.TransactionsCount ,0) as TransactionsCount,
+            c.AverageMovementQuantityTillThisDay as AverageMovementQuantityTillThisDay
+            FROM DimStockItems a 
+            LEFT OUTER JOIN CTE b on (a.StockItemID = b.StockItemID)
+            LEFT OUTER JOIN FactDailyStockItemTran c on (a.StockItemID = c.StockItemID and c.TimeKey = (SELECT TimeKey From DimTime WHERE FullDateAlternateKey = DATEADD(dd, -1, @LastAddedDate)))
+            WHERE a.StockItemID != -1
+        )
+        INSERT INTO temp5_fact_daily
+        select 
+            a.StockItemID , 
+            TimeKey , 
+            TransactionsCount , 
+            CASE TransactionsCount
+                WHEN 0 then ISNULL(AverageMovementQuantityTillThisDay , ISNULL(a.AverageMovementQuantityTillThisDay , 0))
+                else (RemainingStockItemQuantity / TransactionsCount)
+            END as AverageMovementQuantityTillThisDay
+        from T1 a LEFT OUTER JOIN RemainingStockItemQuantityPerDay b 
+        on (a.StockItemID = b.StockItemID and a.TimeKey = (SELECT TimeKey FROM DimTime WHERE FullDateAlternateKey = b.Date));
+        --*---------------------------------------------* filling the temp6 here *------------------------------------------------------------------*--
+        WITH CTE as
+            (
+                select 
+                    StockItemID,
+                    TransactionDate,
+                    MovementQuantity,
+                    RemainingQuantityAfterThisTransaction
+                from FactStockItemTran
+                where TransactionDate = @LastAddedTimeKey
+            )
+            INSERT INTO temp6_fact_daily
+            SELECT 
+                    a.StockItemID,
+                    ISNULL(TransactionDate , @LastAddedTimeKey) AS TimeKey,
+                    ISNULL(AVG(MovementQuantity),0) as AverageMovementQuantityInThisDay
+            FROM DimStockItems a LEFT OUTER JOIN CTE b on (a.StockItemID = b.StockItemID)
+            where a.StockItemID != -1 
+        Group by a.StockItemID , TransactionDate;
+        --^---------------------------- joining the temp1,2,3,4,5 and bulk insert into the fact table ----------------------------------------------^--
         SET @CURRENT_DATETIME = (select CONVERT(DATETIME2, GETDATE()));
 
         INSERT INTO FactDailyStockItemTran
@@ -506,6 +667,8 @@ BEGIN
                 MinimumRemainingMovementQuantityInDay,
                 RemainingMovementQuantityInThisDay,
                 TotalDaysOffCountTillToday,
+                AverageMovementQuantityInThisDay,
+                TransactionsCount,
                 AverageMovementQuantityTillThisDay
             )
         SELECT
@@ -525,6 +688,9 @@ BEGIN
 
                 d.TotalDaysOffCountTillToday,
 
+                f.AverageMovementQuantityInThisDay,
+
+                e.TransactionsCount,
                 e.AverageMovementQuantityTillThisDay
         FROM 
             temp1_fact_daily a 
@@ -532,6 +698,7 @@ BEGIN
             inner join temp3_fact_daily c on (a.StockItemID = c.StockItemID and a.TimeKey = c.TimeKey)
             inner join temp4_fact_daily d on (a.StockItemID = d.StockItemID and a.TimeKey = d.TimeKey)
             inner join temp5_fact_daily e on (a.StockItemID = e.StockItemID and a.TimeKey = e.TimeKey)
+            inner join temp6_fact_daily f on (a.StockItemID = f.StockItemID and a.TimeKey = f.TimeKey)
 
         --? LOG
         EXEC AddFactLog

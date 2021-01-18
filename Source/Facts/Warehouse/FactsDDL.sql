@@ -101,6 +101,8 @@ CREATE TABLE dbo.FactDailyStockItemTran
 
     TotalDaysOffCountTillToday INT, --^ depends on today + previous day
 
+    AverageMovementQuantityInThisDay [NUMERIC](20 , 3),
+    TransactionsCount INT,
     AverageMovementQuantityTillThisDay [NUMERIC](20 , 3) --^ depends on today + previous day
     
 
