@@ -29,8 +29,8 @@
      - [ ] Accumulative
 5. **ETL Documentation and Metadata**
    - Warehouse
-     - [ ] Dimensions
-     - [ ] Facts
+     - [x] Dimensions
+     - [x] Facts
    - Sales
      - [ ] Dimensions
      - [ ] Facts
@@ -38,10 +38,6 @@
      - [ ] Dimensions
      - [ ] Facts
 6. **Data Warehouse Metadata and other stuffs**
-   - Adding description to the tables properties
-     - [ ] Warehouse
-     - [ ] Sales
-     - [ ] Purchase
    - Use partitioning
      - [ ] Warehouse
      - [x] Sales
