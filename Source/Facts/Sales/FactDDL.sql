@@ -16,7 +16,8 @@ create table FactTransaction(
 	AmountExcludingTax decimal(25,3),
 	TaxAmount decimal(25,3),
 	TransactionAmount decimal(25,3),
-	TransactionProfit int
+	TransactionProfit int,
+	AccumulationTransactionAmountAfterThisOne decimal(25,3)
 )
 GO
 create index factTransIndex ON 
@@ -51,12 +52,14 @@ create table FactPeriodict(
 	TimeKey int ,
 	CustomerKey int ,
 	PeopleKey int ,
-	TotalpurchasePrice int,
+	TotalpurchasePrice decimal(25,3),
 	TotalNumberOfStock int,
-	TotalRetrivedProfit int,
-	TotalPurchasedTax int,
-	InActiveDayCount int,
-	lastBuyDateKey int
+	TotalTransactionCountTillNow int,
+	EstimatedTotalRetrivedProfit decimal(25,3),
+	TotalPurchasedTax decimal(25,3),
+	InActiveDayCountTillNow int,
+	lastBuyDateKey int,
+	averageBuyAmountTillNow decimal(25,3)
 )
 Go
 
