@@ -27,6 +27,7 @@ BEGIN
 
 	EXEC [WWI-DW].dbo.FillFactTransaction @date
 	EXEC [WWI-DW].dbo.FillFactPeriodic @date
+	EXEC [WWI-DW].dbo.FillFactAcc
 
 END
 Go
@@ -34,7 +35,7 @@ Go
 
 
 Go
-CREATE OR ALTER PROCEDURE MAIN_FarstLoad(@date date) AS
+CREATE OR ALTER PROCEDURE MAIN_FirstLoad(@date date) AS
 BEGIN
 
 	EXEC [WWI-Staging].dbo.FillStagingBuyingGroups
@@ -59,9 +60,10 @@ BEGIN
 
 	EXEC [WWI-DW].dbo.FillFactTransactionFirstLoad @date
 	EXEC [WWI-DW].dbo.FillFactPeriodicFirstLoad @date
+	EXEC [WWI-DW].dbo.FillFactAcc
 
 END
 Go
 
 
-
+exec MAIN '2013-01-05'

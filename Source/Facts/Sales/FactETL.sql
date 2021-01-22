@@ -191,3 +191,38 @@ begin
 	exec FillFactPeriodic @date
 end
 GO
+
+
+---------------------ACC Fact-----------------------
+
+Go
+create or alter procedure FillFactACC AS
+begin
+	IF OBJECT_ID('dbo.TMP_Sales_Acc', 'U') IS NOT NULL
+	drop table TMP_Sales_Acc
+	create table TMP_Sales_Acc(
+		CustomerKey int ,
+		PeopleKey int,
+		TotalBuyPrice int,
+		NumberOfPurchases int,
+		TotalEstimatedProfit int,
+		TotalTax int,
+		averageBuyAmount int
+	);
+	declare @lastOne int = (select Max(timeKey) from FactPeriodict);
+	with total (customerKey, BuyPrice,Profit,Tax) AS(
+		select CustomerKey,SUM(TotalpurchasePrice), SUM(EstimatedTotalRetrivedProfit), SUM(TotalPurchasedTax)
+		From FactPeriodict
+		group by CustomerKey
+	)Insert into TMP_Sales_Acc(CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount)
+		select total.customerKey, FactPeriodict.PeopleKey, total.BuyPrice, FactPeriodict.TotalTransactionCountTillNow, total.Profit
+		, total.Tax, FactPeriodict.averageBuyAmountTillNow
+		from total JOIN FactPeriodict on FactPeriodict.CustomerKey = total.customerKey AND FactPeriodict.TimeKey = @lastOne
+	truncate table FactACC
+	Insert into FactACC(CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount)
+		select  CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount
+			From TMP_Sales_Acc
+	truncate table TMP_Sales_Acc
+
+end
+GO

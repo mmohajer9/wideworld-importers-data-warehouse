@@ -35,9 +35,9 @@ create table FactAcc(
 	PeopleKey int,
 	TotalBuyPrice int,
 	NumberOfPurchases int,
-	MostFrequentBuy nvarchar(256),
-	TotalDelivaredLaterThatExpected int,
-	TotalProfit int
+	TotalEstimatedProfit int,
+	TotalTax int,
+	averageBuyAmount int
 )
 Go
 
