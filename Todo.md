@@ -22,7 +22,7 @@
    - Sales
      - [x] Transactional
      - [x] Periodic Snapshot Daily
-     - [ ] Accumulative
+     - [x] Accumulative
    - Purchase
      - [ ] Transactional
      - [ ] Periodic Snapshot Daily
@@ -32,8 +32,8 @@
      - [x] Dimensions
      - [x] Facts
    - Sales
-     - [ ] Dimensions
-     - [ ] Facts
+     - [x] Dimensions
+     - [x] Facts
    - Purchase
      - [ ] Dimensions
      - [ ] Facts
