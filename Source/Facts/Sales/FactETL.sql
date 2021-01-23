@@ -2,11 +2,11 @@ use [WWI-DW]
 
 
 Go
-create or alter procedure FillFactTransaction (@date date) AS
+create or alter procedure FillFactSalesTransaction (@date date) AS
 begin
 
 	declare @max_date date = ISNULL(
-	(select FullDateAlternateKey From [WWI-DW].dbo.DimTime where TimeKey = (select max(TimeKey) from FactTransaction)), '2012-12-31')
+	(select FullDateAlternateKey From [WWI-DW].dbo.DimTime where TimeKey = (select max(TimeKey) from FactSalesTransaction)), '2012-12-31')
 
 	IF OBJECT_ID('dbo.TMP_Sale_Transaction', 'U') IS NOT NULL
     drop table TMP_Sale_Transaction;
@@ -33,7 +33,7 @@ begin
 			select InvoiceID, SUM(InvoiceLine.LineProfit) from [WWI-Staging].dbo.StagingInvoiceLines as InvoiceLine
 			group by InvoiceLine.InvoiceID
 		),LastTrans(customerKey , id)AS(
-			select customerKey,MAX(TransactionID)from FactTransaction
+			select customerKey,MAX(TransactionID)from FactSalesTransaction
 			where TimeKey = (select timeKey From DimTime where CONVERT(date,DimTime.FullDateAlternateKey) = DATEADD(dd, -1, @max_date))
 			group by CustomerKey
 		)insert into TMP_Sale_Transaction (TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
@@ -45,7 +45,7 @@ begin
 			Transactions.TransactionAmount, ISNULL(profit.amount,0),
 			sum (TransactionAmount) over (partition by  Transactions.CustomerID order by Transactions.CustomerTransactionID) +
 			isNULL(
-				(select AccumulationTransactionAmountAfterThisOne from FactTransaction where transactionID = LastTrans.id)
+				(select AccumulationTransactionAmountAfterThisOne from FactSalesTransaction where transactionID = LastTrans.id)
 			,0)
 			from [WWI-Staging].dbo.StagingCustomerTransactions as Transactions 
 				JOIN DimTime on FullDateAlternateKey = Transactions.TransactionDate and CONVERT(date,DimTime.FullDateAlternateKey) = @max_date
@@ -57,14 +57,14 @@ begin
 				left join LastTrans on LastTrans.customerKey = DimCustomer.CustomerKey
 
 
-		insert into FactTransaction(TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
+		insert into FactSalesTransaction(TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 			AmountExcludingTax,TaxAmount,TransactionAmount,TransactionProfit,AccumulationTransactionAmountAfterThisOne)
 			select TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey,TransactionID,
 				AmountExcludingTax,TaxAmount,TransactionAmount,profit,AccumulationTransactionAmountAfterThisOne from TMP_Sale_Transaction;
 
 		
 		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
-			select 'insert', 'FactTransaction',getdate(),TMP_Sale_Transaction.TransactionID,null from TMP_Sale_Transaction;
+			select 'insert', 'FactSalesTransaction',getdate(),TMP_Sale_Transaction.TransactionID,null from TMP_Sale_Transaction;
 		
 		truncate table TMP_Sale_Transaction;
 	end 
@@ -74,10 +74,10 @@ begin
 end
 GO
 
-create or alter procedure FillFactTransactionFirstLoad (@date date) AS
+create or alter procedure FillFactSalesTransactionFirstLoad (@date date) AS
 begin 
-	truncate table FactTransaction
-	exec FillFactTransaction @date
+	truncate table FactSalesTransaction
+	exec FillFactSalesTransaction @date
 end
 GO
 
@@ -87,10 +87,10 @@ GO
 
 -----------------------Periodic Fact------------------------------------
 Go
-create or alter procedure FillFactPeriodic (@date date) AS
+create or alter procedure FillFactSalesPeriodic (@date date) AS
 begin
 	declare @max_date date = ISNULL(
-	(select FullDateAlternateKey From [WWI-DW].dbo.DimTime where TimeKey = (select max(TimeKey) from FactPeriodict)), '2012-12-31')
+	(select FullDateAlternateKey From [WWI-DW].dbo.DimTime where TimeKey = (select max(TimeKey) from FactSalesPeriodict)), '2012-12-31')
 
 	IF OBJECT_ID('dbo.TMP_Sale_Periodic', 'U') IS NOT NULL
     drop table TMP_Sale_Periodic;
@@ -120,17 +120,17 @@ begin
 		with Transactions (CustomerKey,TotalpurchasePrice,TotalRetrivedProfit,TotalPurchasedTax) AS(
 			select CustomerKey, SUM(ISNULL(TransactionAmount,0)), SUM(ISNULL(TransactionProfit,0)),
 			SUM(ISNULL(TaxAmount,0))
-			from FactTransaction JOIN DimTime ON DimTime.TimeKey = FactTransaction.TimeKey
+			from FactSalesTransaction JOIN DimTime ON DimTime.TimeKey = FactSalesTransaction.TimeKey
 			AND DimTime.TimeKey = @timekey
-			group by FactTransaction.CustomerKey
+			group by FactSalesTransaction.CustomerKey
 		),Quantity(CustomerKey , items) AS(
 			select DimCustomer.CustomerKey, SUM(ISNULL(Quantity,0)) FROM DimCustomer
-			Left Join FactTransaction on FactTransaction.CustomerKey =  DimCustomer.CustomerKey
-			left JOIN [WWI-Staging].dbo.StagingInvoiceLines As Line ON FactTransaction.InvoiceKey = Line.InvoiceID
-			where DimCustomer.CurrentFlag=1 and  FactTransaction.TimeKey = @timekey 
+			Left Join FactSalesTransaction on FactSalesTransaction.CustomerKey =  DimCustomer.CustomerKey
+			left JOIN [WWI-Staging].dbo.StagingInvoiceLines As Line ON FactSalesTransaction.InvoiceKey = Line.InvoiceID
+			where DimCustomer.CurrentFlag=1 and  FactSalesTransaction.TimeKey = @timekey 
 			group by DimCustomer.CustomerKey
 		),AverageBuy(customerID,amount,number)AS(
-			select CustomerKey, SUM(TransactionAmount), count(TransactionAmount) from FactTransaction
+			select CustomerKey, SUM(TransactionAmount), count(TransactionAmount) from FactSalesTransaction
 			 where TimeKey = @timeKey
 			 group by CustomerKey
 		)
@@ -140,44 +140,44 @@ begin
 		ISNULL(Transactions.TotalpurchasePrice,0), ISNULL(Quantity.items,0), ISNULL(Transactions.TotalRetrivedProfit,0),
 		ISNULL(Transactions.TotalPurchasedTax,0),
 		ISNULL(
-			(select distinct TimeKey from FactTransaction where CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
+			(select distinct TimeKey from FactSalesTransaction where CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
 			ISNULL(
-				(select lastBuyDateKey from FactPeriodict where TimeKey = (select TimeKey FROM DimTime where 
+				(select lastBuyDateKey from FactSalesPeriodict where TimeKey = (select TimeKey FROM DimTime where 
 					Convert(DATE,FullDateAlternateKey) = DATEADD(dd, -1, @max_date)) 
-						AND FactPeriodict.CustomerKey =DimCustomer.CustomerKey),0)
+						AND FactSalesPeriodict.CustomerKey =DimCustomer.CustomerKey),0)
 				),
 		ISNULL(
-			(select Distinct 0 from FactTransaction where FactTransaction.CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
+			(select Distinct 0 from FactSalesTransaction where FactSalesTransaction.CustomerKey = DimCustomer.CustomerKey AND TimeKey = @timekey),
 			ISNULL(
-				(select InActiveDayCountTillNow + 1 from FactPeriodict where TimeKey = (select TimeKey FROM DimTime 
+				(select InActiveDayCountTillNow + 1 from FactSalesPeriodict where TimeKey = (select TimeKey FROM DimTime 
 				where Convert(DATE,FullDateAlternateKey) = DATEADD(dd, -1, @max_date)) 
-				AND FactPeriodict.CustomerKey=DimCustomer.CustomerKey),1)
-			), case when (select FactPeriodict.averageBuyAmountTillNow * FactPeriodict.TotalTransactionCountTillNow
-				from FactPeriodict where CustomerKey = DimCustomer.CustomerKey and TimeKey= @dayBefore) IS NULl AND AverageBuy.number IS NULL
+				AND FactSalesPeriodict.CustomerKey=DimCustomer.CustomerKey),1)
+			), case when (select FactSalesPeriodict.averageBuyAmountTillNow * FactSalesPeriodict.TotalTransactionCountTillNow
+				from FactSalesPeriodict where CustomerKey = DimCustomer.CustomerKey and TimeKey= @dayBefore) IS NULl AND AverageBuy.number IS NULL
 					then 0
-				when AverageBuy.amount IS NULl then (select FactPeriodict.averageBuyAmountTillNow
-					from FactPeriodict where CustomerKey = DimCustomer.CustomerKey and TimeKey= @dayBefore)
+				when AverageBuy.amount IS NULl then (select FactSalesPeriodict.averageBuyAmountTillNow
+					from FactSalesPeriodict where CustomerKey = DimCustomer.CustomerKey and TimeKey= @dayBefore)
 				ELSE
-				(AverageBuy.amount + ISNULL((select FactPeriodict.averageBuyAmountTillNow * FactPeriodict.TotalTransactionCountTillNow
-					from FactPeriodict where CustomerKey =  DimCustomer.CustomerKey and TimeKey= @dayBefore),0)) /
-					(AverageBuy.number + ISNULL((select FactPeriodict.TotalTransactionCountTillNow
-					from FactPeriodict where CustomerKey = DimCustomer.CustomerKey  and TimeKey= @dayBefore ),0))
+				(AverageBuy.amount + ISNULL((select FactSalesPeriodict.averageBuyAmountTillNow * FactSalesPeriodict.TotalTransactionCountTillNow
+					from FactSalesPeriodict where CustomerKey =  DimCustomer.CustomerKey and TimeKey= @dayBefore),0)) /
+					(AverageBuy.number + ISNULL((select FactSalesPeriodict.TotalTransactionCountTillNow
+					from FactSalesPeriodict where CustomerKey = DimCustomer.CustomerKey  and TimeKey= @dayBefore ),0))
 				end,
-				ISNULL(AverageBuy.number,0) + ISNULL((select FactPeriodict.TotalTransactionCountTillNow
-				from FactPeriodict where CustomerKey = DimCustomer.CustomerKey  and TimeKey= @dayBefore ),0)
+				ISNULL(AverageBuy.number,0) + ISNULL((select FactSalesPeriodict.TotalTransactionCountTillNow
+				from FactSalesPeriodict where CustomerKey = DimCustomer.CustomerKey  and TimeKey= @dayBefore ),0)
 		from DimCustomer 
 		left JOIN Quantity On DimCustomer.CustomerKey = Quantity.CustomerKey
 		left JOIN Transactions  ON Transactions.CustomerKey = Quantity.CustomerKey
 		left join AverageBuy on AverageBuy.customerID = DimCustomer.CustomerKey
 		where DimCustomer.CustomerKey !=-1
 
-		insert FactPeriodict (TimeKey,CustomerKey,PeopleKey,TotalpurchasePrice,TotalNumberOfStock,EstimatedTotalRetrivedProfit,
+		insert FactSalesPeriodict (TimeKey,CustomerKey,PeopleKey,TotalpurchasePrice,TotalNumberOfStock,EstimatedTotalRetrivedProfit,
 		TotalPurchasedTax,lastBuyDateKey,InActiveDayCountTillNow,averageBuyAmountTillNow,TotalTransactionCountTillNow)
 		select TimeKey,CustomerKey,PeopleKey,TotalpurchasePrice,TotalNumberOfStock,TotalRetrivedProfit,
 		TotalPurchasedTax,lastBuyDateKey,InActiveDayCount,averageBuyAmountTillNow,TotalTransactionCount from TMP_Sale_Periodic
 
 		insert into LogSales(ActionName,TableName,date,RecordId,RecordSurrogateKey)
-		select 'insert', 'FactPeriodict',getdate(),TMP_Sale_Periodic.CustomerKey,null from TMP_Sale_Periodic;
+		select 'insert', 'FactSalesPeriodict',getdate(),TMP_Sale_Periodic.CustomerKey,null from TMP_Sale_Periodic;
 
 		truncate table TMP_Sale_Periodic
 	end
@@ -185,10 +185,10 @@ begin
 end
 GO
 
-create or alter procedure FillFactPeriodicFirstLoad (@date date) AS
+create or alter procedure FillFactSalesPeriodicFirstLoad (@date date) AS
 begin 
-	truncate table FactPeriodict
-	exec FillFactPeriodic @date
+	truncate table FactSalesPeriodict
+	exec FillFactSalesPeriodic @date
 end
 GO
 
@@ -196,7 +196,7 @@ GO
 ---------------------ACC Fact-----------------------
 
 Go
-create or alter procedure FillFactACC AS
+create or alter procedure FillFactSalesACC AS
 begin
 	IF OBJECT_ID('dbo.TMP_Sales_Acc', 'U') IS NOT NULL
 	drop table TMP_Sales_Acc
@@ -209,17 +209,17 @@ begin
 		TotalTax int,
 		averageBuyAmount int
 	);
-	declare @lastOne int = (select Max(timeKey) from FactPeriodict);
+	declare @lastOne int = (select Max(timeKey) from FactSalesPeriodict);
 	with total (customerKey, BuyPrice,Profit,Tax) AS(
 		select CustomerKey,SUM(TotalpurchasePrice), SUM(EstimatedTotalRetrivedProfit), SUM(TotalPurchasedTax)
-		From FactPeriodict
+		From FactSalesPeriodict
 		group by CustomerKey
 	)Insert into TMP_Sales_Acc(CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount)
-		select total.customerKey, FactPeriodict.PeopleKey, total.BuyPrice, FactPeriodict.TotalTransactionCountTillNow, total.Profit
-		, total.Tax, FactPeriodict.averageBuyAmountTillNow
-		from total JOIN FactPeriodict on FactPeriodict.CustomerKey = total.customerKey AND FactPeriodict.TimeKey = @lastOne
-	truncate table FactACC
-	Insert into FactACC(CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount)
+		select total.customerKey, FactSalesPeriodict.PeopleKey, total.BuyPrice, FactSalesPeriodict.TotalTransactionCountTillNow, total.Profit
+		, total.Tax, FactSalesPeriodict.averageBuyAmountTillNow
+		from total JOIN FactSalesPeriodict on FactSalesPeriodict.CustomerKey = total.customerKey AND FactSalesPeriodict.TimeKey = @lastOne
+	truncate table FactSalesACC
+	Insert into FactSalesACC(CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount)
 		select  CustomerKey,PeopleKey,TotalBuyPrice,NumberOfPurchases,TotalEstimatedProfit,TotalTax,averageBuyAmount
 			From TMP_Sales_Acc
 	truncate table TMP_Sales_Acc

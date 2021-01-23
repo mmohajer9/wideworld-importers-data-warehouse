@@ -3,9 +3,9 @@ use [WWI-DW]
 
 
 ;----------------TransAction Fact table---------------------------
-IF OBJECT_ID('dbo.FactTransaction', 'U') IS NOT NULL
-drop table FactTransaction
-create table FactTransaction(
+IF OBJECT_ID('dbo.FactSalesTransaction', 'U') IS NOT NULL
+drop table FactSalesTransaction
+create table FactSalesTransaction(
 	TimeKey int ,
 	CustomerKey int,
 	InvoiceKey int ,
@@ -20,17 +20,17 @@ create table FactTransaction(
 	AccumulationTransactionAmountAfterThisOne decimal(25,3)
 )
 GO
-create index factTransIndex ON 
-	FactTransaction(TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey)
-create unique index factTransIdIndex ON 
-	FactTransaction(TransactionID)
+create index factSalesTransIndex ON 
+	FactSalesTransaction(TimeKey,CustomerKey,InvoiceKey,PeopleKey,TransactionTypeKey,PaymentMethodKey)
+create unique index factSalesTransIdIndex ON 
+	FactSalesTransaction(TransactionID)
 
 
 
 ;----------------Acc fact table---------------------------
-IF OBJECT_ID('dbo.FactAcc', 'U') IS NOT NULL
-drop table FactAcc
-create table FactAcc(
+IF OBJECT_ID('dbo.FactSalesAcc', 'U') IS NOT NULL
+drop table FactSalesAcc
+create table FactSalesAcc(
 	CustomerKey int ,
 	PeopleKey int,
 	TotalBuyPrice int,
@@ -41,14 +41,14 @@ create table FactAcc(
 )
 Go
 
-create index FactAcc ON 
-	FactAcc(CustomerKey,PeopleKey)
+create index FactSalesAcc ON 
+	FactSalesAcc(CustomerKey,PeopleKey)
 
 
 ;----------------Periodic fact table---------------------------
-IF OBJECT_ID('dbo.FactPeriodict', 'U') IS NOT NULL
-drop table FactPeriodict
-create table FactPeriodict(
+IF OBJECT_ID('dbo.FactSalesPeriodict', 'U') IS NOT NULL
+drop table FactSalesPeriodict
+create table FactSalesPeriodict(
 	TimeKey int ,
 	CustomerKey int ,
 	PeopleKey int ,
@@ -63,5 +63,5 @@ create table FactPeriodict(
 )
 Go
 
-create index FactPeriodict ON 
-	FactPeriodict(TimeKey,CustomerKey,PeopleKey)
+create index FactSalesPeriodict ON 
+	FactSalesPeriodict(TimeKey,CustomerKey,PeopleKey)
