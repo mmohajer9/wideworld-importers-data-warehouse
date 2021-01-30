@@ -39,7 +39,7 @@
      - [ ] Facts
 6. **Data Warehouse Metadata and other stuffs**
    - Use partitioning
-     - [ ] Warehouse
+     - [x] Warehouse
      - [x] Sales
      - [ ] Purchase
    - Adding indexes to appropriate tables
