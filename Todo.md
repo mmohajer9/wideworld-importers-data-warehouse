@@ -47,7 +47,7 @@
      - [x] Sales
      - Purchase (Removed)
 7. **>> OPTIONAL PART :D <<**
-   - [x] SSAS + OLAP Engine For Every Mart (**Up to 2 pts**)
+   - [ ] SSAS + OLAP Engine For Every Mart (**Up to 2 pts**)
    - [ ] SSIS (**Up to 1 pts**)
    - [x] SSRS (**Up to 1 pts**)
-   - [x] Using Job (**Up to 0.5 pts**)
+   - [ ] Using Job (**Up to 0.5 pts**)
