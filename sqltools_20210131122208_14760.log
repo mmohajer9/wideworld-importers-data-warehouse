@@ -571,4 +571,50 @@
 21-01-31 13:05:29.4900605 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
    at System.Threading.CancellationToken.ThrowOperationCanceledException()
    at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
-   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo 
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:05:30.4780115 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:05:31.4375524 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:05:32.3737205 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:05:33.2535351 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:43:40.4168306 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:45:40.7545155 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:46:45.6542238 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:46:46.5126917 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+21-01-31 13:46:47.4037093 pid:14760 tid:10 sqltools Critical: 0 : Exception in IntelliCode extension for Microsoft SQL Language Server: System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsFromTokens(Stopwatch watch, IEnumerable`1 tokens, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.PythiaService.GetRecommendationsAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancellationToken)
+   at Microsoft.VisualStudio.IntelliCode.SQL.CompletionExtension.Ha
