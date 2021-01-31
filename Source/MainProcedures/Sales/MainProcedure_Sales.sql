@@ -2,7 +2,7 @@ use [WWI-DW]
 
 
 Go
-CREATE OR ALTER PROCEDURE MAIN(@date date) AS
+CREATE OR ALTER PROCEDURE FILL_SALES_MART(@date date) AS
 BEGIN
 
 	EXEC [WWI-Staging].dbo.FillStagingBuyingGroups
@@ -25,9 +25,9 @@ BEGIN
 	EXEC [WWI-DW].dbo.FillDimPeople
 
 
-	EXEC [WWI-DW].dbo.FillFactTransaction @date
-	EXEC [WWI-DW].dbo.FillFactPeriodic @date
-	EXEC [WWI-DW].dbo.FillFactAcc
+	EXEC [WWI-DW].dbo.FillFactSalesTransaction @date
+	EXEC [WWI-DW].dbo.FillFactSalesPeriodic @date
+	EXEC [WWI-DW].dbo.FillFactSalesAcc
 
 END
 Go
@@ -35,7 +35,7 @@ Go
 
 
 Go
-CREATE OR ALTER PROCEDURE MAIN_FirstLoad(@date date) AS
+CREATE OR ALTER PROCEDURE FILL_SALES_MART_FirstLoad(@date date) AS
 BEGIN
 
 	EXEC [WWI-Staging].dbo.FillStagingBuyingGroups
@@ -58,12 +58,9 @@ BEGIN
 	EXEC [WWI-DW].dbo.FillDimPeopleFirstLoad
 
 
-	EXEC [WWI-DW].dbo.FillFactTransactionFirstLoad @date
-	EXEC [WWI-DW].dbo.FillFactPeriodicFirstLoad @date
-	EXEC [WWI-DW].dbo.FillFactAcc
+	EXEC [WWI-DW].dbo.FillFactSalesTransactionFirstLoad @date
+	EXEC [WWI-DW].dbo.FillFactSalesPeriodicFirstLoad @date
+	EXEC [WWI-DW].dbo.FillFactSalesAcc
 
 END
 Go
-
-
-exec MAIN '2013-01-05'

@@ -1,3 +1,10 @@
+USE [WWI-DW]
+GO
+
+IF OBJECT_ID('dbo.DimPurchaseOrder', 'U') IS NOT NULL
+DROP TABLE dbo.DimPurchaseOrder
+GO
+
 CREATE TABLE DimPurchaseOrder(
 	PurchaseOrderID int PRIMARY KEY,
 	SupplierID int,
@@ -7,7 +14,18 @@ CREATE TABLE DimPurchaseOrder(
 	Comments nvarchar(max) NULL,
 	IsOrderFinalized bit,
 );
+
+
+
 --------------------------------------------------
+
+
+
+IF OBJECT_ID('dbo.DimSupplier', 'U') IS NOT NULL
+DROP TABLE dbo.DimSupplier
+GO
+
+
 CREATE TABLE DimSupplier(
 	SupplierID int PRIMARY KEY,
 	SupplierName nvarchar(100),

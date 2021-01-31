@@ -1,3 +1,9 @@
+USE [WWI-DW]
+GO
+
+IF OBJECT_ID('dbo.DimTime', 'U') IS NOT NULL
+DROP TABLE dbo.DimTime
+GO
 CREATE TABLE [dbo].[DimTime](
   [TimeKey] [nvarchar](255) NULL,
   [FullDateAlternateKey] [nvarchar](255) NULL,
@@ -24,10 +30,11 @@ CREATE TABLE [dbo].[DimTime](
   [PersianCalendarSemester] [nvarchar](255) NULL
 )
 
+GO
 
 ALTER TABLE [WWI-DW].dbo.DimTime 
 ALTER COLUMN TimeKey INT NOT NULL;
 
-
+GO
 ALTER TABLE [WWI-DW].dbo.DimTime
 ADD CONSTRAINT PK_TimeKey PRIMARY KEY (TimeKey)

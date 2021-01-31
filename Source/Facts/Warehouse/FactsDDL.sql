@@ -141,3 +141,5 @@ GO
 CREATE INDEX FactStockItemTranIndex ON FactStockItemTran(StockItemID , TransactionDate,CustomerKey,InvoiceKey,TransactionTypeID);
 CREATE INDEX FactStockItemDailyIndex ON FactDailyStockItemTran(StockItemID , TimeKey);
 CREATE INDEX FactStockItemAccIndex ON FactAccStockItemTran(StockItemID);
+
+GO
