@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>SalesDataSource</DataSourceReference>
+      <CommandText>select top 10 TotalBuyPrice,CustomerName 
+from FactSalesAcc join DimCustomer On DimCustomer.CustomerKey = FactSalesAcc.CustomerKey
+order by TotalBuyPrice DESC</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="TotalBuyPrice">
+        <DataField>TotalBuyPrice</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="CustomerName">
+        <DataField>CustomerName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

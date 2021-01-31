@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>SalesDataSource</DataSourceReference>
+      <CommandText>
+select SUM(TotalpurchasePrice) As SUM From FactSalesPeriodict where TotalpurchasePrice &gt; 0 and timekey &gt;20130101 and timekey &lt;20130110
+union
+(select SUM(TotalpurchasePrice) As SUM From FactSalesPeriodict where TotalpurchasePrice &lt; 0 and timekey &gt;20130101 and timekey &lt;20130110)
+
+</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="SUM">
+        <DataField>SUM</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

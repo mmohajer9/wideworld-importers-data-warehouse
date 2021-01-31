@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>SalesDataSource</DataSourceReference>
+      <CommandText>select DimCustomer.CustomerName,DimCustomer.PhoneNumber,DimCustomer.Website,DimCustomer.DeliveryCityName,DimCustomer.AccountOpenDate,
+FactSalesAcc.averageBuyAmount,FactSalesAcc.NumberOfPurchases,FactSalesAcc.TotalBuyPrice,FactSalesAcc.TotalEstimatedProfit,FactSalesAcc.TotalTax from FactSalesAcc
+join DimCustomer on DimCustomer.CustomerKey = FactSalesAcc.CustomerKey
+where  FactSalesAcc.averageBuyAmount &gt; 0</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="CustomerName">
+        <DataField>CustomerName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="PhoneNumber">
+        <DataField>PhoneNumber</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="Website">
+        <DataField>Website</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="DeliveryCityName">
+        <DataField>DeliveryCityName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="AccountOpenDate">
+        <DataField>AccountOpenDate</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="averageBuyAmount">
+        <DataField>averageBuyAmount</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="NumberOfPurchases">
+        <DataField>NumberOfPurchases</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="TotalBuyPrice">
+        <DataField>TotalBuyPrice</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="TotalEstimatedProfit">
+        <DataField>TotalEstimatedProfit</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="TotalTax">
+        <DataField>TotalTax</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>
