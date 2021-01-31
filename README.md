@@ -24,12 +24,10 @@ In This Project , Me **([Mohammad Mahdi Mohajer](https://github.com/mmohajer9))*
 1. **Microsoft SQL Server** (2012 and Higher >>)
 2. **Microsoft SSMS** (SQL Server Management Studio)
 
-
 ### Other Optional Technologies
 
 1. **Microsoft SSAS**
 2. **Microsfot SSRS**
-
 
 ### Project Guide
 
