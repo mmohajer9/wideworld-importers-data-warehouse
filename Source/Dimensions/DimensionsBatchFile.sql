@@ -9863,7 +9863,7 @@ BEGIN
         UPDATE DimStockItems
         SET UnitPriceEffectiveDate = CONVERT(DATE, GETDATE()),
             OriginalUnitPrice = OriginalUnitPrice,
-            CurrentUnitPrice = b.CurrentUnitPrice
+            CurrentUnitPrice = b.UnitPrice
         FROM DimStockItems a inner join temp_modified b
             on a.StockItemID = b.StockItemID
         where a.StockItemID in (
