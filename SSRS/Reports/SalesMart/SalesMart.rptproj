@@ -9,6 +9,10 @@
   </DataSources>
   <DataSets>
     <ProjectItem>
+      <Name>FactSalesAcc.rsd</Name>
+      <FullPath>FactSalesAcc.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
       <Name>FactSalesPeriodic.rsd</Name>
       <FullPath>FactSalesPeriodic.rsd</FullPath>
     </ProjectItem>
@@ -17,19 +21,19 @@
       <FullPath>FactSalesTransaction.rsd</FullPath>
     </ProjectItem>
     <ProjectItem>
-      <Name>FactSalesAcc.rsd</Name>
-      <FullPath>FactSalesAcc.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
       <Name>PieChart.rsd</Name>
       <FullPath>PieChart.rsd</FullPath>
     </ProjectItem>
+    <ProjectItem>
+      <Name>WareHouseTran.rsd</Name>
+      <FullPath>WareHouseTran.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>WarehouseLess10.rsd</Name>
+      <FullPath>WarehouseLess10.rsd</FullPath>
+    </ProjectItem>
   </DataSets>
   <Reports>
-    <ProjectItem>
-      <Name>Top10.rdl</Name>
-      <FullPath>Top10.rdl</FullPath>
-    </ProjectItem>
     <ProjectItem>
       <Name>AccTable.rdl</Name>
       <FullPath>AccTable.rdl</FullPath>
@@ -37,6 +41,18 @@
     <ProjectItem>
       <Name>PieChart.rdl</Name>
       <FullPath>PieChart.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>SalesTop10.rdl</Name>
+      <FullPath>SalesTop10.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>WarehouseTop10.rdl</Name>
+      <FullPath>WarehouseTop10.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>Less10.rdl</Name>
+      <FullPath>Less10.rdl</FullPath>
     </ProjectItem>
   </Reports>
   <Configurations>

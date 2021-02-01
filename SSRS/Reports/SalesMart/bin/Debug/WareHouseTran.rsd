@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>SalesDataSource</DataSourceReference>
+      <CommandText>with stock (id,quantity) As
+(select StockItemID, SUM(MovementQuantity) from FactStockItemTran
+ group by StockItemID) select top 10 DimStockItems.StockItemName , quantity from stock
+ join DimStockItems on DimStockItems.StockItemID = stock.id
+ order by quantity DESC</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="StockItemName">
+        <DataField>StockItemName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="quantity">
+        <DataField>quantity</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>
