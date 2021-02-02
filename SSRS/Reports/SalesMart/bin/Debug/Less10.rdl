@@ -173,7 +173,7 @@
                       <FontSize>8pt</FontSize>
                     </Style>
                     <ChartAxisTitle>
-                      <Caption>تعداد آیتم برگشت زده شده</Caption>
+                      <Caption>تعداد آیتم</Caption>
                       <Style>
                         <FontFamily>Zar</FontFamily>
                         <FontSize>12pt</FontSize>
@@ -250,7 +250,7 @@
             </ChartAreas>
             <ChartTitles>
               <ChartTitle Name="Default">
-                <Caption>اسامی 10 کالایی که بیشترین میزان برگشتی را از تاریخ 2013/01/01 الی 2013/01/10 داشته اند</Caption>
+                <Caption>اسامی 10 کالایی که بیشترین میزان خروج از انبار را از تاریخ 2013/01/01 الی 2013/01/10 داشته اند</Caption>
                 <Style>
                   <BackgroundGradientType>None</BackgroundGradientType>
                   <FontFamily>Zar</FontFamily>

@@ -172,7 +172,7 @@
                       <FontSize>8pt</FontSize>
                     </Style>
                     <ChartAxisTitle>
-                      <Caption>تعداد آیتم خارج شده از انبار</Caption>
+                      <Caption>تعداد آیتم</Caption>
                       <Style>
                         <FontFamily>Zar</FontFamily>
                         <FontSize>12pt</FontSize>
@@ -267,7 +267,7 @@
             </ChartLegends>
             <ChartTitles>
               <ChartTitle Name="Default">
-                <Caption>اسامی 10 آیتم پر فروش از تاریخ 2013/01/01 الی 2013/01/10 بر اساس داده های موجود در انبار</Caption>
+                <Caption>اسامی 10 آیتمی که بیشترین میزان ورود به انبار را در بازه ی 2013/01/01 الی 2013/01/10 داشته اند</Caption>
                 <Style>
                   <BackgroundGradientType>None</BackgroundGradientType>
                   <FontFamily>Zar</FontFamily>
