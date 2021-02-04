@@ -36,3 +36,8 @@ For testing and running the data ware house that we created , go to **`Source`**
 ### Project Status
 
 **This Project Is Completed :white_check_mark:**
+
+### Credit
+
+1. [Mohammad Mahdi Mohajer](https://github.com/mmohajer9)
+2. [Mohammad Derakhshan](https://github.com/mdarakhshan)
